@@ -125,14 +125,18 @@ docs/
 ## Privacy
 
 Everything runs on your machine. FluxConvert has no accounts, no telemetry, no analytics, and no
-network calls during ordinary use. Settings and history are stored under:
+network calls during ordinary use. Settings and logs are stored under:
 
 ```text
 %LOCALAPPDATA%\FluxConvert\
-  settings.json
-  history.json
-  logs\fluxconvert-YYYYMMDD.log
+  settings.json                        user preferences
+  logs\fluxconvert-YYYYMMDD.log        daily rolling application log
+  temp\                                scratch space for in-progress conversions
+  history.json                         conversion history (added with the queue feature)
 ```
+
+Set `FLUXCONVERT_DATA_ROOT` to move that folder somewhere else — useful for a portable install or
+for isolating a test run.
 
 ---
 

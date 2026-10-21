@@ -104,12 +104,72 @@ the SDK emits `AssemblyProductAttribute` for `$(Product)`. The test was correcte
 
 ---
 
+### F-102 · Composition root, file logging and settings persistence — **Verified**
+
+**Created**
+
+```text
+src/FluxConvert.Core/Infrastructure/AppPaths.cs          application data root resolution
+src/FluxConvert.Core/Infrastructure/FileLoggerProvider.cs daily rotating file logger
+src/FluxConvert.Core/Settings/AppSettings.cs              persisted preferences
+src/FluxConvert.Core/Settings/ISettingsService.cs         settings contract
+src/FluxConvert.Core/Settings/SettingsService.cs          atomic JSON load/save
+src/FluxConvert.App/Composition/AppServices.cs             DI composition root
+src/FluxConvert.App/App.xaml.cs                            builds and disposes the container
+tests/FluxConvert.Core.Tests/AppPathsTests.cs              5 tests
+tests/FluxConvert.Core.Tests/FileLoggerProviderTests.cs    5 tests
+tests/FluxConvert.Core.Tests/SettingsServiceTests.cs      9 tests + 5 theory cases
+```
+
+**Behaviour**
+
+- `AppPaths` resolves the data root from `FLUXCONVERT_DATA_ROOT`, then
+  `%LOCALAPPDATA%\FluxConvert`, then `%APPDATA%\FluxConvert`, then `<exe>\data`. `EnsureCreated()`
+  creates `logs\` and `temp\`.
+- `FileLoggerProvider` writes `fluxconvert-YYYYMMDD.log` with a
+  `timestamp [LVL] Category: message` line format. The file is opened for the duration of a
+  single write and closed again, so the log is never locked and can be opened in Notepad while
+  the application runs.
+- `SettingsService` reads and writes `settings.json` (camelCase, indented). Writes are atomic
+  (temp file + move). A corrupt file is moved aside as `settings.corrupt-<timestamp>.json` and
+  the defaults are used, so a bad file can never prevent startup. Unknown JSON members are
+  ignored so a newer file does not break an older build.
+- `AppServices` is the composition root. The container is validated at build time
+  (`ValidateOnBuild`), so a missing or mis-registered dependency fails immediately instead of at
+  first use. It is disposed on shutdown, which releases the log write lock.
+
+**Build:** `dotnet build FluxConvert.sln -c Debug` → *Build succeeded, 0 Warning(s), 0 Error(s)*.
+
+**Tests:** `dotnet test FluxConvert.sln -c Debug` → *Failed: 0, Passed: 27, Skipped: 0*.
+
+**Manual verification.** The application was launched from the build output with an empty data
+root. It created `%LOCALAPPDATA%\FluxConvert\{logs,temp}`, wrote
+`fluxconvert-20261021.log` containing
+`2026-10-21T08:36:34.568-07:00 [INF] FluxConvert.Core.Settings.SettingsService/LogNoSettingsFile: No settings file found at ...; using defaults.`,
+showed its window and shut down cleanly.
+
+**Issues found and fixed during this feature**
+
+- The WPF SDK uses a reduced implicit-usings set that does **not** include `System.IO`; the App
+  project needs an explicit `using System.IO;`.
+- `CA1848` requires source-generated logging, so `SettingsService` now uses `[LoggerMessage]`
+  partial methods.
+- `CA1001` flagged the `SemaphoreSlim` in `SettingsService`; the service now implements
+  `IDisposable` and is disposed by the container.
+- `Microsoft.Extensions.Logging.Abstractions.NullScope` is internal; the logger provider now
+  carries its own no-op scope.
+- Holding the log file open for the lifetime of the provider made it unreadable by other
+  processes (a `File.ReadAllText` failed with a sharing violation). The provider now opens and
+  closes the file per write.
+
+---
+
 ## Next up
 
-**F-102 · Composition root, file logging and settings persistence.**
+**F-103 · External tool locator (FFmpeg, FFprobe, ImageMagick).**
 
-- Acceptance criteria: DI container owns the services; a daily rolling file logger writes to
-  `%LOCALAPPDATA%\FluxConvert\logs\`; `AppPaths` creates the data root on demand; the provider is
-  disposed on shutdown; unit tests cover path resolution and log-file naming/level filtering.
-- Recommended tests: `AppPaths` root resolution and directory creation; file logger writes
-  `fluxconvert-YYYYMMDD.log` and honours the minimum level.
+- Acceptance criteria: `IToolLocator` resolves each binary from an explicit settings path, then a
+  bundled `tools/` folder, then the system `PATH`; a missing tool is reported as unavailable
+  rather than throwing; unit tests cover every resolution branch with a fake file system layout.
+- Recommended tests: explicit override wins; bundled copy wins over `PATH`; `PATH` is used as a
+  last resort; a missing tool yields `null` with an explanation, not an exception.
