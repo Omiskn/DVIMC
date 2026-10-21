@@ -145,13 +145,14 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | Commit | Message | Contents | Pushed? |
 | --- | --- | --- | --- |
 | `1738ae4` | `Initial commit` | `.gitattributes` only | Yes (pre-existing) |
-| `0fbe81e` | `docs: add project baseline, roadmap and architecture documentation` | F-000 assessment + F-001 documentation and scaffolding | **Local only** |
-| `70bb970` | `chore: initialize WPF application foundation` | F-101 — solution, three projects, build props, DPI manifest, colour tokens, placeholder shell, first tests | **Local only** |
-| `c692935` | `feat: add composition root, file logging and settings persistence` | F-102 — DI container, `AppPaths`, file logger, atomic JSON settings with quarantine | **Local only** |
-| *(this commit)* | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Local only** |
+| `0fbe81e` | `docs: add project baseline, roadmap and architecture documentation` | F-000 assessment + F-001 documentation and scaffolding | **Yes** |
+| `70bb970` | `chore: initialize WPF application foundation` | F-101 — solution, three projects, build props, DPI manifest, colour tokens, placeholder shell, first tests | **Yes** |
+| `c692935` | `feat: add composition root, file logging and settings persistence` | F-102 — DI container, `AppPaths`, file logger, atomic JSON settings with quarantine | **Yes** |
+| `29aff83` | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Yes** |
 
-Pushing to GitHub requires explicit user authorisation. Until then the commits remain local for
-review in GitHub Desktop.
+All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
+authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
+returned `29aff83`. Further pushes need the same explicit authorisation.
 
 ---
 
