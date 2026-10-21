@@ -1,0 +1,12 @@
+# Test project conventions.
+#
+# xUnit test method names use the `Subject_Behaviour` convention, which conflicts with the
+# CA1707 naming rule for production code. The rule is relaxed for test code only.
+
+[*.cs]
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1849.severity = none

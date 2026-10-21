@@ -1,0 +1,41 @@
+<!--
+  Temporary application shell.
+
+  This window exists only so the foundation can be launched and verified. It is replaced by the
+  floating radial widget (Phase 2) and must not grow features of its own.
+-->
+<Window x:Class="FluxConvert.App.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="FluxConvert"
+        Width="560"
+        Height="340"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Surface.Base}"
+        Foreground="{StaticResource Text.Primary}"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Ideal">
+    <Border BorderBrush="{StaticResource Border.Subtle}" BorderThickness="1" Margin="1">
+        <StackPanel Margin="32" VerticalAlignment="Center">
+            <TextBlock Text="FluxConvert"
+                       FontSize="28"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource Text.Primary}" />
+            <TextBlock Text="A lightweight floating file converter for Windows."
+                       Margin="0,6,0,0"
+                       FontSize="13"
+                       Foreground="{StaticResource Text.Secondary}" />
+            <Rectangle Height="1" Margin="0,24,0,24" Fill="{StaticResource Border.Subtle}" />
+            <TextBlock Text="Foundation ready."
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource Accent.Blue}" />
+            <TextBlock Margin="0,8,0,0"
+                       FontSize="12.5"
+                       Foreground="{StaticResource Text.Secondary}"
+                       TextWrapping="Wrap"
+                       Text="The floating radial interface, drag-and-drop and the conversion engines arrive in the following milestones." />
+        </StackPanel>
+    </Border>
+</Window>

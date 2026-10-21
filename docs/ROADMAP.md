@@ -27,7 +27,7 @@ machine has one display at 1920×1080 physical / 1536×864 logical (125 % scalin
 
 | ID | Feature | Status | Depends on |
 | --- | --- | --- | --- |
-| F-101 | Solution + project skeleton (`FluxConvert.Core`, `FluxConvert.App`, `FluxConvert.Core.Tests`) | Planned | F-001 |
+| F-101 | Solution + project skeleton (`FluxConvert.Core`, `FluxConvert.App`, `FluxConvert.Core.Tests`) | **Verified** | F-001 |
 | F-102 | Dependency injection container, structured logging, app data directories | Planned | F-101 |
 | F-103 | Settings service (JSON, atomic write, defaults, validation) | Planned | F-102 |
 | F-104 | Application shell: borderless main window, tray icon, graceful shutdown | Planned | F-102 |

@@ -26,9 +26,9 @@
 | | |
 | --- | --- |
 | **Current phase** | Phase 1 — Application foundation |
-| **Current feature** | F-101 — Solution and project skeleton (not started) |
-| **Overall completion** | ~3 % — documentation and repository scaffolding only; **no application code exists yet** |
-| **Most recent verified milestone** | F-001 — Baseline documentation set and repository scaffolding |
+| **Current feature** | F-101 — Solution and project skeleton (**Verified**) → next: F-102 |
+| **Overall completion** | ~7 % — documentation plus a buildable, launchable WPF shell. **No conversion feature exists yet.** |
+| **Most recent verified milestone** | F-101 — Solution and project skeleton (built with 0 warnings, 4/4 tests green, app launched and rendered) |
 | **Blockers** | None blocking. FFmpeg/FFprobe/ImageMagick are **not installed** on this machine; this is handled by runtime tool discovery (ADR-0002) and by gracefully skipping integration tests. |
 
 ### Environment facts (verified 2026-10-21)
@@ -45,8 +45,9 @@
 
 | ID | Feature | What it does | Implemented | Built | Tested | Commit |
 | --- | --- | --- | --- | --- | --- | --- |
-| F-000 | Repository / Git / toolchain assessment | Recorded the repository state, toolchain, display metrics, missing media tools and the resulting architecture constraints. | ✅ | n/a | ✅ (manual inspection) | see § 8 |
-| F-001 | Baseline documentation and scaffolding | `README.md`, `PROJECT_STATUS.md`, `docs/{ROADMAP,PROGRESS,ARCHITECTURE,TESTING,ART_DIRECTION}.md`, 3 ADRs, `.gitignore`, `.editorconfig`, `.gitattributes`, `Directory.Build.props`. | ✅ | n/a | ✅ (files reviewed) | see § 8 |
+| F-000 | Repository / Git / toolchain assessment | Recorded the repository state, toolchain, display metrics, missing media tools and the resulting architecture constraints. | ✅ | n/a | ✅ (manual inspection) | `0fbe81e` |
+| F-001 | Baseline documentation and scaffolding | `README.md`, `PROJECT_STATUS.md`, `docs/{ROADMAP,PROGRESS,ARCHITECTURE,TESTING,ART_DIRECTION}.md`, 3 ADRs, `.gitignore`, `.editorconfig`, `.gitattributes`, `Directory.Build.props`. | ✅ | n/a | ✅ (files reviewed) | `0fbe81e` |
+| F-101 | Solution and project skeleton | Three-project solution (`FluxConvert.Core` net8.0, `FluxConvert.App` net8.0-windows WPF, `FluxConvert.Core.Tests` xUnit), shared build props, per-monitor-V2 DPI manifest, colour-token dictionary, and a temporary shell window that launches and closes cleanly. | ✅ | ✅ 0 warnings | ✅ 4/4 xUnit tests green | see § 8 |
 
 Nothing else is complete. **No conversion feature exists yet** — no format in the README table is
 currently implemented.
@@ -55,7 +56,7 @@ currently implemented.
 
 ## 4. Features In Progress
 
-**None.** F-101 is the next feature and has not been started.
+**None.** F-102 is the next feature and has not been started.
 
 ---
 
@@ -112,10 +113,11 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 
 | | |
 | --- | --- |
-| **Most recent build** | None yet — no project exists. The `.gitignore` / `.editorconfig` / `Directory.Build.props` files were written but not compiled. |
-| **Tests executed** | None. The xUnit project is created in F-101. |
+| **Most recent build** | `dotnet build FluxConvert.sln -c Debug` → **Build succeeded, 0 Warning(s), 0 Error(s)** (2026-10-21) |
+| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 4, Skipped: 0** (`ProductInfoTests`) |
+| **Manual verification** | App launched from `bin\Debug\net8.0-windows\FluxConvert.App.exe`; process stayed alive, `MainWindowTitle` = `FluxConvert`, window rendered with the dark theme (screenshot captured), process terminated cleanly on request. |
 | **Known failures / limitations** | FFmpeg, FFprobe and ImageMagick are not installed on this machine, so no real conversion has been attempted. Integration tests are designed to skip with a printed reason rather than fail. |
-| **Last verified** | 2026-10-21 (repository/toolchain inspection) |
+| **Last verified** | 2026-10-21 |
 
 ---
 
@@ -141,7 +143,8 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | Commit | Message | Contents | Pushed? |
 | --- | --- | --- | --- |
 | `1738ae4` | `Initial commit` | `.gitattributes` only | Yes (pre-existing) |
-| *(this commit)* | `docs: add project baseline, roadmap and architecture documentation` | F-000 assessment + F-001 documentation and scaffolding | **Local only** |
+| `0fbe81e` | `docs: add project baseline, roadmap and architecture documentation` | F-000 assessment + F-001 documentation and scaffolding | **Local only** |
+| *(this commit)* | `chore: initialize WPF application foundation` | F-101 — solution, three projects, build props, DPI manifest, colour tokens, placeholder shell, first tests | **Local only** |
 
 Pushing to GitHub requires explicit user authorisation. Until then the commits remain local for
 review in GitHub Desktop.
@@ -150,30 +153,32 @@ review in GitHub Desktop.
 
 ## 9. Next Steps
 
-### Next feature: **F-101 — Solution and project skeleton**
+### Next feature: **F-102 — Dependency injection, structured logging, app data directories**
 
-**Goal.** A buildable, testable three-project solution with no UI complexity yet.
+**Goal.** Replace the hard-coded startup path with a composition root that owns the application's
+services and logging, so later features can depend on abstractions instead of statics.
 
 **Acceptance criteria**
 
-1. `FluxConvert.sln` contains `src/FluxConvert.Core` (`net8.0`), `src/FluxConvert.App`
-   (`net8.0-windows`, `UseWPF`), `tests/FluxConvert.Core.Tests` (`net8.0`, xUnit).
-2. `dotnet restore`, `dotnet build` and `dotnet test` all succeed with **zero warnings**
-   (`TreatWarningsAsErrors` is on).
-3. `dotnet run --project src/FluxConvert.App` starts the app and shows a visible window that
-   closes cleanly without a lingering process.
-4. `ProductInfo` exposes the product name from a single source used by the window title and the
-   tray tooltip.
-5. No hard-coded absolute paths; no `packages.config`; no committed binaries.
+1. `App` builds a `ServiceProvider` at startup and resolves view models / services from it.
+2. A file logger writes rolling daily files under `%LOCALAPPDATA%\FluxConvert\logs\`; the log
+   level is configurable; a console logger is used in Debug builds only.
+3. An `AppPaths` service resolves `%LOCALAPPDATA%\FluxConvert\` and creates it on demand.
+4. The service provider is disposed on shutdown; no unobserved task exceptions.
+5. Unit tests cover the path resolution (including the "override via environment variable" case)
+   and the file logger's file naming and level filtering.
+6. `dotnet build` → 0 warnings; `dotnet test` → all green.
 
 **Recommended tests**
 
-- Unit: `ProductInfo.ProductName` is non-empty and constant.
-- Smoke: `dotnet test` green with the suite actually executing (not silently skipped).
+- Unit: `AppPaths` returns the expected root and creates the directory when missing.
+- Unit: `FileLogger` writes a file named `fluxconvert-YYYYMMDD.log` and honours the minimum
+  level.
+- Integration: none yet — no external tool is involved.
 
 **Prerequisites**
 
-- None. The .NET 8 SDK is sufficient.
+- F-101 (done).
 
 ---
 
@@ -181,29 +186,32 @@ review in GitHub Desktop.
 
 1. `git status` — confirm a clean tree on `main`.
 2. Read this file, then `docs/PROGRESS.md` for the detailed log.
-3. Check `docs/ROADMAP.md` for the status of the next feature (F-101).
+3. Check `docs/ROADMAP.md` for the status of the next feature (F-102).
 4. Inspect `docs/adr/` for the three accepted decisions that constrain the implementation.
 
-**Relevant source files today:** none — the repository currently contains documentation and build
-configuration only. The first code will live in:
+**Relevant source files today**
 
 ```text
-src/FluxConvert.Core/          domain services (no WPF dependency)
-src/FluxConvert.App/           WPF shell
-tests/FluxConvert.Core.Tests/  xUnit suite
+src/FluxConvert.Core/ProductInfo.cs            product identity (single source)
+src/FluxConvert.App/App.xaml(.cs)               entry point, owns the composition root
+src/FluxConvert.App/ShellWindow.xaml(.cs)      temporary shell, replaced by the radial widget
+src/FluxConvert.App/Themes/Palette.xaml         colour tokens
+src/FluxConvert.App/app.manifest                PerMonitorV2 DPI + long-path awareness
+tests/FluxConvert.Core.Tests/ProductInfoTests.cs
 ```
 
-**Continuation checklist for F-101**
+> **WPF gotcha to remember.** The markup compiler only generates `Application.InitializeComponent()`
+> when `App.xaml` has loadable content. `App.xaml` therefore merges `Themes/Palette.xaml`, and that
+> file must never be emptied — otherwise the build fails with `CS0103: InitializeComponent`.
 
-- [ ] `dotnet new sln -n FluxConvert`
-- [ ] `dotnet new classlib -n FluxConvert.Core -o src/FluxConvert.Core -f net8.0`
-- [ ] `dotnet new wpf -n FluxConvert.App -o src/FluxConvert.App -f net8.0-windows`
-- [ ] `dotnet new xunit -n FluxConvert.Core.Tests -o tests/FluxConvert.Core.Tests -f net8.0`
-- [ ] Add project references (`App` → `Core`, `Tests` → `Core`)
-- [ ] Add `CommunityToolkit.Mvvm`, `Microsoft.Extensions.DependencyInjection`,
-      `Microsoft.Extensions.Logging` package references
-- [ ] Delete the template `Class1.cs`; add `ProductInfo`
-- [ ] `dotnet build` → zero warnings; `dotnet test` → green
-- [ ] Launch the app and confirm the window appears and closes
+**Continuation checklist for F-102**
+
+- [ ] `src/FluxConvert.Core/Infrastructure/AppPaths.cs` — resolve/create the app data root
+- [ ] `src/FluxConvert.Core/Infrastructure/FileLoggerProvider.cs` — daily rolling file logger
+- [ ] `src/FluxConvert.Core/Settings/AppSettings.cs` + `SettingsService.cs` (JSON, atomic write)
+- [ ] `src/FluxConvert.App/Composition/AppServices.cs` — the DI composition root
+- [ ] `App.OnStartup` builds the provider; `OnExit` disposes it
+- [ ] Unit tests for `AppPaths` and the file logger
+- [ ] `dotnet build` → 0 warnings; `dotnet test` → green
 - [ ] Update this file, `docs/PROGRESS.md`, `docs/ROADMAP.md`
-- [ ] Commit: `chore: initialize WPF application foundation`
+- [ ] Commit: `feat: add composition root, file logging and settings persistence`

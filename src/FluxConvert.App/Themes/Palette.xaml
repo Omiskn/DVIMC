@@ -1,0 +1,40 @@
+<!--
+  FluxConvert colour tokens.
+
+  Source of truth: docs/ART_DIRECTION.md § 3.1. Every colour used by the interface must come from
+  this dictionary - no hard-coded hex values in views.
+
+  Note: this file must contain at least one resource. The WPF markup compiler only generates
+  `Application.InitializeComponent()` when the application definition has loadable content, and the
+  application calls it to load these tokens.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Surfaces -->
+    <SolidColorBrush x:Key="Surface.Base" Color="#0B0F1A" />
+    <SolidColorBrush x:Key="Surface.Elevated" Color="#141A2B" />
+    <SolidColorBrush x:Key="Surface.Ring" Color="#1B2236" Opacity="0.88" />
+    <SolidColorBrush x:Key="Surface.Item" Color="#232C44" />
+    <SolidColorBrush x:Key="Surface.ItemHover" Color="#2E3A5C" />
+
+    <!-- Lines -->
+    <SolidColorBrush x:Key="Border.Subtle" Color="#2A3350" />
+
+    <!-- Text -->
+    <SolidColorBrush x:Key="Text.Primary" Color="#E8ECF7" />
+    <SolidColorBrush x:Key="Text.Secondary" Color="#9AA6C4" />
+    <SolidColorBrush x:Key="Text.Muted" Color="#66739A" />
+
+    <!-- Category and action accents -->
+    <SolidColorBrush x:Key="Accent.Blue" Color="#4C8DFF" />
+    <SolidColorBrush x:Key="Accent.Violet" Color="#8B6CF0" />
+    <SolidColorBrush x:Key="Accent.Teal" Color="#2DD4BF" />
+    <SolidColorBrush x:Key="Accent.Magenta" Color="#F472B6" />
+
+    <!-- State -->
+    <SolidColorBrush x:Key="State.Success" Color="#34D399" />
+    <SolidColorBrush x:Key="State.Warning" Color="#FBBF24" />
+    <SolidColorBrush x:Key="State.Error" Color="#F87171" />
+
+</ResourceDictionary>
