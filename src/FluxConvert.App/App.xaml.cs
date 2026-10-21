@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using FluxConvert.App.Composition;
+using FluxConvert.App.Diagnostics;
 using FluxConvert.App.Shell;
 using FluxConvert.Core.Settings;
 using FluxConvert.Core.Shell;
@@ -41,6 +42,14 @@ public partial class App : Application, IDisposable
         // end the process.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+        if (DiagnosticsCommand.IsCommandLineMode(e.Args))
+        {
+            // A command-line mode never touches the notification area and never becomes the
+            // primary instance, so it is handled before the single-instance check.
+            RunCommandLineMode(e.Args);
+            return;
+        }
+
         _singleInstance = new SingleInstanceCoordinator(SingleInstanceCoordinator.DefaultApplicationName);
         if (!_singleInstance.IsPrimary)
         {
@@ -75,6 +84,31 @@ public partial class App : Application, IDisposable
     {
         Dispose();
         base.OnExit(e);
+    }
+
+    /// <summary>
+    /// Runs a command-line mode and ends the process with its exit code.
+    /// </summary>
+    /// <param name="arguments">The command-line arguments.</param>
+    private void RunCommandLineMode(string[] arguments)
+    {
+        var exitCode = 0;
+
+        try
+        {
+            _services = AppServices.Build();
+
+            // The command line is synchronous from the user's point of view, so the small wait is
+            // done here instead of blocking the dispatcher.
+            exitCode = DiagnosticsCommand.RunAsync(arguments, _services).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("The diagnostics report could not be produced: " + ex.Message);
+            exitCode = 1;
+        }
+
+        Shutdown(exitCode);
     }
 
     /// <inheritdoc />

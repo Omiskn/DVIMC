@@ -293,12 +293,66 @@ src/FluxConvert.Core/Settings/AppSettings.cs StartMinimizedToTray now defaults t
 
 ---
 
+### F-105 · `--diagnostics` command-line mode — **Verified**
+
+**Created**
+
+```text
+src/FluxConvert.Core/Diagnostics/DiagnosticsEntry.cs       one line of the report
+src/FluxConvert.Core/Diagnostics/DiagnosticsReport.cs      the report model and its text format
+src/FluxConvert.Core/Diagnostics/DiagnosticsReportBuilder.cs builds the report from app state
+src/FluxConvert.App/Diagnostics/ConsoleOutput.cs            console attach / allocate
+src/FluxConvert.App/Diagnostics/DiagnosticsCommand.cs       the switches themselves
+tests/FluxConvert.Core.Tests/DiagnosticsReportTests.cs      9 tests
+```
+
+**Modified**
+
+```text
+src/FluxConvert.Core/ProductInfo.cs    adds ProductInfo.Version from the assembly metadata
+src/FluxConvert.App/App.xaml.cs         handles the switches before the single-instance check
+```
+
+**Behaviour**
+
+- `FluxConvert.App.exe --diagnostics` prints a plain-text report and exits with code 0 without
+  opening a window. The report has four sections: *System* (OS, architecture, runtime,
+  application folder), *Paths* (data root, settings file, log directory, temporary directory),
+  *Media tools* (FFmpeg, FFprobe and ImageMagick with their version and path, or the reason they
+  are missing) and *Settings* (the effective preferences).
+- `FluxConvert.App.exe --help` prints the usage text.
+- The command-line modes are handled **before** the single-instance check, so a report can be
+  produced while the application is already running. The running instance is not disturbed.
+- The report is written to standard output, so it can be redirected to a file.
+
+**Build:** `dotnet build FluxConvert.sln -c Debug` → *Build succeeded, 0 Warning(s), 0 Error(s)*.
+
+**Tests:** `dotnet test FluxConvert.sln -c Debug` → *Failed: 0, Passed: 63, Skipped: 0*.
+
+**Manual verification.** `FluxConvert.App.exe --diagnostics > diag.txt` produced a 34-line report
+listing the data root, the log directory, the three media tools (all correctly reported as
+unavailable with a reason) and the effective settings; the exit code was 0. `--help` printed the
+usage text. With the application already running, `--diagnostics` still printed the report and
+exited 0, and the running instance was unaffected.
+
+**Issues found and fixed during this feature**
+
+- **The report was written to the console instead of the redirected file.** `AttachConsole`
+  replaces the process's standard handles, so re-opening standard output *after* attaching
+  discarded the caller's redirection. `ConsoleOutput.Ensure` now leaves a redirected standard
+  output completely alone and only attaches or allocates a console when there is nothing to
+  preserve.
+- `Console.Write(report)` bound to the `object` overload and printed the type name. The report is
+  now formatted explicitly with `report.Format()`.
+
+---
+
 ## Next up
 
-**F-105 · `--diagnostics` command-line mode.**
+**Phase 2 — F-201: design tokens and reusable styles.**
 
-- Acceptance criteria: `FluxConvert.App.exe --diagnostics` prints the application data root, the
-  detected media tools with their versions and paths, and the relevant settings, then exits
-  without opening a window.
-- Recommended tests: unit tests for the diagnostics report formatting; manual verification of the
-  printed output.
+- Acceptance criteria: the colour tokens are completed, a typography scale and a spacing scale
+  are defined, and reusable control styles (item badge, core disc, detail strip, progress ring)
+  exist as XAML resources with their interaction states.
+- Recommended tests: manual verification of the styles in the running application; a unit test is
+  not meaningful for pure XAML resources.

@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace FluxConvert.Core;
 
 /// <summary>
@@ -24,4 +26,24 @@ public static class ProductInfo
 
     /// <summary>Tooltip / notification prefix used for background notifications.</summary>
     public static string NotificationPrefix => ProductName;
+
+    /// <summary>The product version, taken from the assembly metadata.</summary>
+    public static string Version { get; } = ResolveVersion();
+
+    private static string ResolveVersion()
+    {
+        var assembly = typeof(ProductInfo).Assembly;
+
+        var informational = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        if (informational is not null && !string.IsNullOrWhiteSpace(informational.InformationalVersion))
+        {
+            // The SDK appends "+<commit sha>" to the informational version; it is noise here.
+            var plus = informational.InformationalVersion.IndexOf('+', StringComparison.Ordinal);
+            return plus < 0
+                ? informational.InformationalVersion
+                : informational.InformationalVersion[..plus];
+        }
+
+        return assembly.GetName().Version?.ToString(3) ?? "0.0.0";
+    }
 }

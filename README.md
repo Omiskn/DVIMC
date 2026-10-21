@@ -87,6 +87,9 @@ Verify the discovery:
 dotnet run --project src/FluxConvert.App -- --diagnostics
 ```
 
+`--diagnostics` prints the data root, the log folder, the media tools it found (with versions and
+paths) and the effective settings, then exits. `--help` prints the usage text.
+
 ---
 
 ## Project layout
