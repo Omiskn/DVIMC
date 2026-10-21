@@ -150,7 +150,7 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `70bb970` | `chore: initialize WPF application foundation` | F-101 — solution, three projects, build props, DPI manifest, colour tokens, placeholder shell, first tests | **Yes** |
 | `c692935` | `feat: add composition root, file logging and settings persistence` | F-102 — DI container, `AppPaths`, file logger, atomic JSON settings with quarantine | **Yes** |
 | `29aff83` | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Yes** |
-| *(this commit)* | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Local only** |
+| *(this commit)* | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Yes** |
 
 All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
 authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
