@@ -32,7 +32,9 @@ coverage*.info
 coverage*.lcov
 
 # External media binaries (FFmpeg / ImageMagick) are downloaded, never committed.
-tools/
+# Anchored to the repository root so it cannot also hide source folders such as
+# src/FluxConvert.Core/Tools/ (Windows path matching is case-insensitive).
+/tools/
 
 # Local, machine-specific overrides
 *.local.json

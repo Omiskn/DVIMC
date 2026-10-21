@@ -164,12 +164,74 @@ showed its window and shut down cleanly.
 
 ---
 
+### F-103 · External media tool locator and process runner — **Verified**
+
+Delivered ahead of the Phase 4 position it was planned for, because the version probe needs a
+process runner and both are prerequisites for every conversion engine.
+
+**Created**
+
+```text
+src/FluxConvert.Core/Process/ProcessRequest.cs         executable + argument list
+src/FluxConvert.Core/Process/ProcessResult.cs          exit code, stdout, stderr, duration
+src/FluxConvert.Core/Process/IProcessRunner.cs          runner contract
+src/FluxConvert.Core/Process/ProcessRunner.cs           async runner with timeout + cancellation
+src/FluxConvert.Core/Process/ExternalToolException.cs   "the tool could not be started"
+src/FluxConvert.Core/Tools/ExternalToolKind.cs          ffmpeg / ffprobe / imagemagick
+src/FluxConvert.Core/Tools/ExternalTool.cs              found-or-missing result with a reason
+src/FluxConvert.Core/Tools/IToolLocator.cs              locator contract
+src/FluxConvert.Core/Tools/ToolSearchContext.cs         where to look, and the user's overrides
+src/FluxConvert.Core/Tools/ToolLocator.cs               the search itself
+tests/FluxConvert.Core.Tests/ProcessRunnerTests.cs      8 tests (real processes)
+tests/FluxConvert.Core.Tests/ToolLocatorTests.cs        8 tests
+```
+
+**Behaviour**
+
+- `ProcessRunner` passes arguments through `ProcessStartInfo.ArgumentList`, so no shell is ever
+  involved and a path with spaces, `&` or non-ASCII characters cannot be re-interpreted. stdout and
+  stderr are drained concurrently, so a chatty tool cannot deadlock on a full pipe. A timeout
+  terminates the whole process tree; cancellation does the same and rethrows
+  `OperationCanceledException`.
+- `ToolLocator` searches, in order: the explicit path from the settings → a bundled copy under
+  the application folder, its `tools` folder, the repository root and the repository's `tools`
+  folder → the system `PATH`. The first match wins.
+- A missing program is reported as *unavailable* with a plain-English reason. The locator never
+  throws.
+- The version is read once with `<tool> -version` and cached together with the path. `Invalidate()`
+  clears the cache.
+- ImageMagick is only ever resolved as `magick.exe`. The legacy `convert.exe` name is deliberately
+  ignored because on Windows it refers to the built-in file system conversion utility.
+
+**Build:** `dotnet build FluxConvert.sln -c Debug` → *Build succeeded, 0 Warning(s), 0 Error(s)*.
+
+**Tests:** `dotnet test FluxConvert.sln -c Debug` → *Failed: 0, Passed: 43, Skipped: 0*.
+
+**Manual verification.** The application was launched again after the container registrations
+changed; it started, showed its window and shut down cleanly, and the container passed
+`ValidateOnBuild` with the new registrations.
+
+**Issues found and fixed during this feature**
+
+- `FluxConvert.Core.Process` shadows `System.Diagnostics.Process` inside that namespace. Both the
+  runner and the tests now use an explicit `DiagnosticsProcess` alias.
+- The relative search paths used `/` separators, which produced mixed-separator paths on Windows.
+  They are now composed with `Path.Combine`.
+- `CA1861` / `CA1859` required the version argument array and the `PATH` reader to avoid
+  re-allocating a constant array on every call.
+
+**Note for later phases.** `ProcessRunner` deliberately reports *what* the tool said rather than
+interpreting it. Parsing FFmpeg's progress output and ImageMagick's stderr is a separate concern
+and is scheduled with the respective engines (F-402, F-601).
+
+---
+
 ## Next up
 
-**F-103 · External tool locator (FFmpeg, FFprobe, ImageMagick).**
+**F-104 · Application shell: tray icon, single instance, graceful shutdown.**
 
-- Acceptance criteria: `IToolLocator` resolves each binary from an explicit settings path, then a
-  bundled `tools/` folder, then the system `PATH`; a missing tool is reported as unavailable
-  rather than throwing; unit tests cover every resolution branch with a fake file system layout.
-- Recommended tests: explicit override wins; bundled copy wins over `PATH`; `PATH` is used as a
-  last resort; a missing tool yields `null` with an explanation, not an exception.
+- Acceptance criteria: the application can run without a taskbar button; a notification-area icon
+  opens and closes the interface; a second launch activates the running instance instead of
+  starting a duplicate; closing the application while a conversion is running asks first.
+- Recommended tests: unit tests for the single-instance coordination logic; manual verification of
+  the tray icon and the shutdown prompt.

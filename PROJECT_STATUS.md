@@ -26,9 +26,9 @@
 | | |
 | --- | --- |
 | **Current phase** | Phase 1 — Application foundation |
-| **Current feature** | F-102 — Composition root, file logging, settings persistence (**Verified**) → next: F-103 |
-| **Overall completion** | ~11 % — documentation, a buildable WPF shell, DI composition root, file logging and persisted settings. **No conversion feature exists yet.** |
-| **Most recent verified milestone** | F-102 — Composition root, file logging and settings persistence (0 warnings, 27/27 tests green, app verified to write its log and create its data root) |
+| **Current feature** | F-103 — External media tool locator and process runner (**Verified**) → next: F-104 |
+| **Overall completion** | ~15 % — documentation, buildable WPF shell, DI composition root, file logging, persisted settings, safe process runner and media-tool discovery. **No conversion feature exists yet.** |
+| **Most recent verified milestone** | F-103 — Tool locator and process runner (0 warnings, 43/43 tests green, app verified to start with the new registrations) |
 | **Blockers** | None blocking. FFmpeg/FFprobe/ImageMagick are **not installed** on this machine; this is handled by runtime tool discovery (ADR-0002) and by gracefully skipping integration tests. |
 
 ### Environment facts (verified 2026-10-21)
@@ -48,7 +48,8 @@
 | F-000 | Repository / Git / toolchain assessment | Recorded the repository state, toolchain, display metrics, missing media tools and the resulting architecture constraints. | ✅ | n/a | ✅ (manual inspection) | `0fbe81e` |
 | F-001 | Baseline documentation and scaffolding | `README.md`, `PROJECT_STATUS.md`, `docs/{ROADMAP,PROGRESS,ARCHITECTURE,TESTING,ART_DIRECTION}.md`, 3 ADRs, `.gitignore`, `.editorconfig`, `.gitattributes`, `Directory.Build.props`. | ✅ | n/a | ✅ (files reviewed) | `0fbe81e` |
 | F-101 | Solution and project skeleton | Three-project solution (`FluxConvert.Core` net8.0, `FluxConvert.App` net8.0-windows WPF, `FluxConvert.Core.Tests` xUnit), shared build props, per-monitor-V2 DPI manifest, colour-token dictionary, and a temporary shell window that launches and closes cleanly. | ✅ | ✅ 0 warnings | ✅ 4/4 xUnit tests green | `70bb970` |
-| F-102 | Composition root, file logging, settings persistence | DI container (validated at build), `AppPaths` data-root resolution, daily rotating file logger, atomic JSON settings persistence with corrupt-file quarantine. | ✅ | ✅ 0 warnings | ✅ 27/27 xUnit tests green | see § 8 |
+| F-102 | Composition root, file logging, settings persistence | DI container (validated at build), `AppPaths` data-root resolution, daily rotating file logger, atomic JSON settings persistence with corrupt-file quarantine. | ✅ | ✅ 0 warnings | ✅ 27/27 xUnit tests green | `c692935` |
+| F-103 | External media tool locator and process runner | `ProcessRunner` (argument-list based, no shell, concurrent output drain, timeout, cancellation, process-tree kill) and `ToolLocator` (settings → bundled → `PATH`, cached version probe, never throws). | ✅ | ✅ 0 warnings | ✅ 43/43 xUnit tests green | see § 8 |
 
 Nothing else is complete. **No conversion feature exists yet** — no format in the README table is
 currently implemented.
@@ -57,7 +58,7 @@ currently implemented.
 
 ## 4. Features In Progress
 
-**None.** F-103 is the next feature and has not been started.
+**None.** F-104 is the next feature and has not been started.
 
 ---
 
@@ -115,9 +116,9 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | | |
 | --- | --- |
 | **Most recent build** | `dotnet build FluxConvert.sln -c Debug` → **Build succeeded, 0 Warning(s), 0 Error(s)** (2026-10-21) |
-| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 27, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`) |
-| **Manual verification** | App launched from `bin\Debug\net8.0-windows\FluxConvert.App.exe` with an empty data root: it created `%LOCALAPPDATA%\FluxConvert\{logs,temp}`, wrote `logs\fluxconvert-20261021.log` with a correctly formatted line, showed its window and shut down cleanly. |
-| **Known failures / limitations** | FFmpeg, FFprobe and ImageMagick are not installed on this machine, so no real conversion has been attempted. Integration tests are designed to skip with a printed reason rather than fail. |
+| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 43, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`) |
+| **Manual verification** | App launched from `bin\Debug\net8.0-windows\FluxConvert.App.exe` with an empty data root: it created `%LOCALAPPDATA%\FluxConvert\{logs,temp}`, wrote `logs\fluxconvert-20261021.log` with a correctly formatted line, showed its window and shut down cleanly. Re-verified after the F-103 container registrations. |
+| **Known failures / limitations** | FFmpeg, FFprobe and ImageMagick are **not installed** on this machine, so the locator reports them as unavailable and no real conversion has been attempted. Integration tests are designed to skip with a printed reason rather than fail. |
 | **Last verified** | 2026-10-21 |
 
 ---
@@ -146,7 +147,8 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `1738ae4` | `Initial commit` | `.gitattributes` only | Yes (pre-existing) |
 | `0fbe81e` | `docs: add project baseline, roadmap and architecture documentation` | F-000 assessment + F-001 documentation and scaffolding | **Local only** |
 | `70bb970` | `chore: initialize WPF application foundation` | F-101 — solution, three projects, build props, DPI manifest, colour tokens, placeholder shell, first tests | **Local only** |
-| *(this commit)* | `feat: add composition root, file logging and settings persistence` | F-102 — DI container, `AppPaths`, file logger, atomic JSON settings with quarantine | **Local only** |
+| `c692935` | `feat: add composition root, file logging and settings persistence` | F-102 — DI container, `AppPaths`, file logger, atomic JSON settings with quarantine | **Local only** |
+| *(this commit)* | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Local only** |
 
 Pushing to GitHub requires explicit user authorisation. Until then the commits remain local for
 review in GitHub Desktop.
@@ -155,32 +157,31 @@ review in GitHub Desktop.
 
 ## 9. Next Steps
 
-### Next feature: **F-103 — External tool locator (FFmpeg, FFprobe, ImageMagick)**
+### Next feature: **F-104 — Application shell: tray icon, single instance, graceful shutdown**
 
-**Goal.** Resolve the three external binaries reliably and report their absence clearly, so the
-capability layer can disable unsupported options instead of failing during a conversion.
+**Goal.** Turn the temporary shell into the real application shell: the process lives in the
+notification area, a second launch activates the running instance, and shutting down while work
+is in flight is handled deliberately.
 
 **Acceptance criteria**
 
-1. `IToolLocator` resolves `ffmpeg.exe`, `ffprobe.exe` and `magick.exe` in this order: explicit
-   settings path → bundled `tools/` folder → system `PATH`.
-2. A tool that cannot be found is reported as *unavailable* with a human-readable reason; the
-   locator never throws.
-3. The locator exposes the version string of each tool it finds (obtained by running
-   `<tool> -version`), cached so the cost is paid once.
-4. Unit tests cover every resolution branch using a temporary directory layout.
-5. `dotnet build` → 0 warnings; `dotnet test` → all green.
+1. The application can run without occupying a taskbar button (`ShowInTaskbar = false` plus a
+   notification-area icon).
+2. The notification-area icon opens the interface and offers *Show*, *Settings* and *Exit*.
+3. A second launch signals the running instance (which then shows the interface) instead of
+   starting a duplicate process.
+4. Closing the interface hides it to the notification area; *Exit* really quits.
+5. Quitting while a conversion is running asks for confirmation first.
+6. Unit tests cover the single-instance coordination logic; the rest is verified manually.
 
 **Recommended tests**
 
-- Unit: explicit settings path wins over everything else.
-- Unit: a bundled copy in `tools/` wins over `PATH`.
-- Unit: `PATH` is used when nothing else matches.
-- Unit: a missing tool yields "unavailable" rather than an exception.
+- Unit: the second instance detects the first and signals it instead of starting a window.
+- Manual: tray icon, context menu, hide/restore, and the quit confirmation.
 
 **Prerequisites**
 
-- F-102 (done).
+- F-103 (done).
 
 ---
 
@@ -188,7 +189,7 @@ capability layer can disable unsupported options instead of failing during a con
 
 1. `git status` — confirm a clean tree on `main`.
 2. Read this file, then `docs/PROGRESS.md` for the detailed log.
-3. Check `docs/ROADMAP.md` for the status of the next feature (F-103).
+3. Check `docs/ROADMAP.md` for the status of the next feature (F-104).
 4. Inspect `docs/adr/` for the accepted decisions that constrain the implementation.
 
 **Relevant source files today**
@@ -198,6 +199,8 @@ src/FluxConvert.Core/ProductInfo.cs                product identity (single sour
 src/FluxConvert.Core/Infrastructure/AppPaths.cs    application data root
 src/FluxConvert.Core/Infrastructure/FileLoggerProvider.cs
 src/FluxConvert.Core/Settings/*                    persisted preferences
+src/FluxConvert.Core/Process/*                     safe external process execution
+src/FluxConvert.Core/Tools/*                       media tool discovery
 src/FluxConvert.App/Composition/AppServices.cs     DI composition root
 src/FluxConvert.App/App.xaml(.cs)                  entry point
 src/FluxConvert.App/ShellWindow.xaml(.cs)          temporary shell, replaced by the radial widget
@@ -212,13 +215,16 @@ tests/FluxConvert.Core.Tests/                       xUnit suite
 > **Implicit usings gotcha.** WPF projects get a reduced implicit-usings set. `System.IO` is **not**
 > included — add `using System.IO;` explicitly in App-project files that need it.
 
-**Continuation checklist for F-103**
+> **Namespace gotcha.** `FluxConvert.Core.Process` shadows `System.Diagnostics.Process` inside
+> that namespace. Use the `DiagnosticsProcess` alias.
 
-- [ ] `src/FluxConvert.Core/Tools/IToolLocator.cs` + `ToolLocator.cs`
-- [ ] `src/FluxConvert.Core/Tools/ExternalTool.cs` (name, path, version, availability, reason)
-- [ ] Resolve order: settings override → `tools/` next to the executable / repo root → `PATH`
-- [ ] Version detection via `<tool> -version`, cached
-- [ ] Unit tests for every resolution branch
+**Continuation checklist for F-104**
+
+- [ ] `src/FluxConvert.App/Shell/SingleInstanceCoordinator.cs` (named mutex + activation signal)
+- [ ] `src/FluxConvert.App/Shell/TrayIcon.cs` (notification-area icon and context menu)
+- [ ] `ShowInTaskbar = false`; closing hides to the tray; *Exit* quits
+- [ ] Quit confirmation while a conversion is running
+- [ ] Unit tests for the coordination logic
 - [ ] `dotnet build` → 0 warnings; `dotnet test` → green
 - [ ] Update this file, `docs/PROGRESS.md`, `docs/ROADMAP.md`
-- [ ] Commit: `feat: add external media tool locator`
+- [ ] Commit: `feat: add tray icon, single instance and graceful shutdown`

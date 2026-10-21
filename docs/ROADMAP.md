@@ -69,7 +69,7 @@ item is focusable, keyboard-navigable, and screen-reader labelled.
 
 | ID | Feature | Status | Depends on |
 | --- | --- | --- | --- |
-| F-401 | External tool locator (settings override → bundled `tools/` → `PATH`) | Planned | F-102 |
+| F-401 | ~~External tool locator~~ — delivered early as **F-103**, because the version probe and the process runner it needs are prerequisites for the conversion engines | **Verified** (F-103) | F-102 |
 | F-402 | ImageMagick capability detection (supported formats, delegates) | Planned | F-401 |
 | F-403 | First end-to-end image conversion: PNG → WEBP | Planned | F-402 |
 | F-404 | Output naming, collision protection, temporary file + atomic finalize | Planned | F-403 |

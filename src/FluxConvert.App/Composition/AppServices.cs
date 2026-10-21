@@ -1,6 +1,8 @@
 using System.IO;
 using FluxConvert.Core.Infrastructure;
+using FluxConvert.Core.Process;
 using FluxConvert.Core.Settings;
+using FluxConvert.Core.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -32,6 +34,16 @@ public static class AppServices
 
         services.AddSingleton(paths);
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IProcessRunner, ProcessRunner>();
+
+        // The search context is built from the settings at the moment it is first resolved, so a
+        // path the user configured is always taken into account.
+        services.AddSingleton(provider => ToolSearchContext.CreateDefault(
+            provider.GetRequiredService<ISettingsService>().Current,
+            AppContext.BaseDirectory));
+        services.AddSingleton<IToolLocator>(provider => new ToolLocator(
+            provider.GetRequiredService<ToolSearchContext>(),
+            provider.GetRequiredService<IProcessRunner>()));
 
         var fileLogger = new FileLoggerProvider(paths.LogDirectory, LogLevel.Information);
         services.AddSingleton(fileLogger);
