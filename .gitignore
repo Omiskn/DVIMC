@@ -1,0 +1,44 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+publish/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Test output
+[Tt]est[Rr]esult*/
+*.trx
+coverage*.json
+coverage*.xml
+coverage*.info
+coverage*.lcov
+
+# External media binaries (FFmpeg / ImageMagick) are downloaded, never committed.
+tools/
+
+# Local, machine-specific overrides
+*.local.json
+appsettings.local.json
+
+# OS noise
+Thumbs.db
+desktop.ini
+.DS_Store
