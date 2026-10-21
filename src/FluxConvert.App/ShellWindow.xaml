@@ -11,6 +11,7 @@
         Width="560"
         Height="340"
         WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
         Background="{StaticResource Surface.Base}"
         Foreground="{StaticResource Text.Primary}"
         FontFamily="Segoe UI"

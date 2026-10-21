@@ -132,14 +132,41 @@ under the user's chosen name, and the original file is never modified.
 `(2)`, `(3)`, … before the extension. It never overwrites. The policy lives in Core and is
 covered by unit tests.
 
-### 3.8 Logging is structured and privacy-conscious
+### 3.8 The notification-area icon uses one Windows Forms control
+
+`System.Windows.Forms.NotifyIcon` is the only Windows Forms type in the product; the user
+interface stays in WPF. Implementing `Shell_NotifyIcon` by hand would mean re-implementing
+notification-area registration, version negotiation and icon lifetime management for one icon.
+
+Because enabling Windows Forms adds `System.Windows.Forms` and `System.Drawing` as *implicit*
+usings, both are removed again with `<Using Remove="..." />` in the project file. The files that
+genuinely need them import them explicitly, so `Application`, `Color` and `Pen` never become
+ambiguous with their WPF counterparts.
+
+The Windows Forms SDK also warns (`WFAC010`) that DPI awareness should be declared through
+`ApplicationHighDpiMode` rather than the application manifest. That property only configures the
+scaling of Windows Forms *forms*, which this product does not have, and it was measured to leave
+the process `SYSTEM_DPI_AWARE`. The manifest therefore declares Per-Monitor-V2 by hand, and the
+warning is suppressed with the reason recorded in `app.manifest` and in the project file.
+
+### 3.9 Only one copy of the application runs
+
+`SingleInstanceCoordinator` claims a named mutex (`Local\<name>.SingleInstance`) and listens on a
+named auto-reset event (`Local\<name>.Activate`). A second launch finds the mutex taken, signals
+the event, and exits; the running instance brings its interface back to the front.
+
+A named mutex is *re-entrant* for the thread that already owns it, so the mutex alone cannot
+distinguish "a second process" from "a second coordinator in the same process". A process-wide
+claim backs the mutex up so the two cases cannot be confused.
+
+### 3.10 Logging is structured and privacy-conscious
 
 `Microsoft.Extensions.Logging` with a custom file provider writing daily rolling files under
 `%LOCALAPPDATA%\FluxConvert\logs`. File paths of converted media are logged (needed for support),
 but the contents of files are never inspected beyond format detection, and no file content or
 user-identifying data is transmitted anywhere.
 
-### 3.9 Settings and history are JSON
+### 3.11 Settings and history are JSON
 
 `System.Text.Json` with explicit `JsonSerializerOptions` (camelCase, indented, tolerant of
 unknown members so a downgrade does not crash). Writes go to a temporary file that is then

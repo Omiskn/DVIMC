@@ -42,7 +42,7 @@ public sealed class AppSettings
     private string _defaultOutputDirectory = string.Empty;
     private string _theme = "Dark";
     private bool _stripMetadata = true;
-    private bool _startMinimizedToTray = true;
+    private bool _startMinimizedToTray;
     private bool _openOutputFolderOnCompletion;
     private bool _reducedMotion;
     private bool _preserveSourceFolderStructure;
@@ -89,7 +89,11 @@ public sealed class AppSettings
         set => _stripMetadata = value;
     }
 
-    /// <summary>Whether the application starts hidden in the notification area.</summary>
+    /// <summary>
+    /// Whether the application starts hidden in the notification area. Defaults to <see langword="false"/>
+    /// while the placeholder shell is the only interface; it becomes the default once the floating
+    /// radial widget exists.
+    /// </summary>
     public bool StartMinimizedToTray
     {
         get => _startMinimizedToTray;

@@ -226,12 +226,79 @@ and is scheduled with the respective engines (F-402, F-601).
 
 ---
 
+### F-104 · Application shell: notification-area icon, single instance, graceful shutdown — **Verified**
+
+**Created**
+
+```text
+src/FluxConvert.Core/Shell/SingleInstanceCoordinator.cs   named mutex + activation event
+src/FluxConvert.Core/Shell/IConversionActivity.cs          "is a conversion running?"
+src/FluxConvert.Core/Shell/ConversionActivityTracker.cs   thread-safe counter
+src/FluxConvert.App/Shell/AppIconFactory.cs                the icon, drawn in code
+src/FluxConvert.App/Shell/TrayIconController.cs            notification-area icon and menu
+tests/FluxConvert.Core.Tests/SingleInstanceCoordinatorTests.cs   6 tests
+tests/FluxConvert.Core.Tests/ConversionActivityTrackerTests.cs   5 tests
+```
+
+**Modified**
+
+```text
+src/FluxConvert.App/App.xaml.cs              owns the shell, the tray and the single-instance guard
+src/FluxConvert.App/ShellWindow.xaml(.cs)    no taskbar button; closing hides the window
+src/FluxConvert.App/app.manifest             Per-Monitor-V2 DPI + long-path awareness
+src/FluxConvert.App/FluxConvert.App.csproj   UseWindowsForms, implicit using cleanup
+src/FluxConvert.Core/Settings/AppSettings.cs StartMinimizedToTray now defaults to false
+```
+
+**Behaviour**
+
+- The application lives in the notification area. It has no taskbar button, and closing the
+  visible window hides it instead of ending the process. *Exit* in the tray menu really quits.
+- A second launch does not start a second process. It signals the running instance, which brings
+  its interface back to the front, and the second copy exits immediately.
+- Quitting while a conversion is running asks for confirmation first. The check goes through
+  `IConversionActivity`, which the conversion queue will register itself with.
+- The tray icon and the application icon are drawn in code from the colour tokens, so no image
+  file has to be shipped and the mark always matches the theme.
+
+**Build:** `dotnet build FluxConvert.sln -c Debug` → *Build succeeded, 0 Warning(s), 0 Error(s)*.
+
+**Tests:** `dotnet test FluxConvert.sln -c Debug` → *Failed: 0, Passed: 54, Skipped: 0*.
+
+**Manual verification** (measured against the running process with Win32 calls):
+
+| Check | Result |
+| --- | --- |
+| Process DPI awareness | `PER_MONITOR_DPI_AWARE` |
+| Shell window visible at startup | yes |
+| `WM_CLOSE` on the shell window | window hidden, process still alive |
+| Second launch | second process exited, first process brought its window back |
+| Notification-area icon | the icon's helper windows exist in the process; the taskbar on this machine is auto-hidden, so the tray area could not be photographed |
+
+**Issues found and fixed during this feature**
+
+- Enabling Windows Forms made `Application`, `Color` and `Pen` ambiguous with their WPF
+  counterparts. The implicit WinForms and GDI+ usings are removed from the project
+  (`<Using Remove="System.Windows.Forms" />`) and imported explicitly where they are needed.
+- `WFAC010` asks for DPI awareness to be set through `ApplicationHighDpiMode` rather than the
+  manifest. That property only configures Windows Forms *form* scaling, which this application
+  does not use, and it did **not** produce a Per-Monitor-V2 manifest — the process was measured as
+  `SYSTEM_DPI_AWARE`. The manifest entries were restored and the warning suppressed with the
+  reason recorded in `app.manifest` and in the project file.
+- **A real bug in the single-instance guard.** A named mutex is re-entrant for the thread that
+  already owns it, so a second coordinator created on the same thread acquired the mutex
+  successfully and wrongly claimed the primary role. A process-wide claim now backs the mutex up,
+  and the failing test is what exposed it.
+- `RegisteredWaitHandle` has no `Dispose`; the activation listener now uses `Unregister`.
+
+---
+
 ## Next up
 
-**F-104 · Application shell: tray icon, single instance, graceful shutdown.**
+**F-105 · `--diagnostics` command-line mode.**
 
-- Acceptance criteria: the application can run without a taskbar button; a notification-area icon
-  opens and closes the interface; a second launch activates the running instance instead of
-  starting a duplicate; closing the application while a conversion is running asks first.
-- Recommended tests: unit tests for the single-instance coordination logic; manual verification of
-  the tray icon and the shutdown prompt.
+- Acceptance criteria: `FluxConvert.App.exe --diagnostics` prints the application data root, the
+  detected media tools with their versions and paths, and the relevant settings, then exits
+  without opening a window.
+- Recommended tests: unit tests for the diagnostics report formatting; manual verification of the
+  printed output.

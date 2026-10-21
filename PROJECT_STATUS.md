@@ -26,9 +26,9 @@
 | | |
 | --- | --- |
 | **Current phase** | Phase 1 — Application foundation |
-| **Current feature** | F-103 — External media tool locator and process runner (**Verified**) → next: F-104 |
-| **Overall completion** | ~15 % — documentation, buildable WPF shell, DI composition root, file logging, persisted settings, safe process runner and media-tool discovery. **No conversion feature exists yet.** |
-| **Most recent verified milestone** | F-103 — Tool locator and process runner (0 warnings, 43/43 tests green, app verified to start with the new registrations) |
+| **Current feature** | F-104 — Notification-area shell, single instance, graceful shutdown (**Verified**) → next: F-105 |
+| **Overall completion** | ~20 % — documentation, buildable WPF shell, DI composition root, file logging, persisted settings, safe process runner, media-tool discovery and a real notification-area application shell. **No conversion feature exists yet.** |
+| **Most recent verified milestone** | F-104 — Application shell (0 warnings, 54/54 tests green; DPI awareness, hide-to-tray and second-instance activation all verified against the running process) |
 | **Blockers** | None blocking. FFmpeg/FFprobe/ImageMagick are **not installed** on this machine; this is handled by runtime tool discovery (ADR-0002) and by gracefully skipping integration tests. |
 
 ### Environment facts (verified 2026-10-21)
@@ -49,7 +49,8 @@
 | F-001 | Baseline documentation and scaffolding | `README.md`, `PROJECT_STATUS.md`, `docs/{ROADMAP,PROGRESS,ARCHITECTURE,TESTING,ART_DIRECTION}.md`, 3 ADRs, `.gitignore`, `.editorconfig`, `.gitattributes`, `Directory.Build.props`. | ✅ | n/a | ✅ (files reviewed) | `0fbe81e` |
 | F-101 | Solution and project skeleton | Three-project solution (`FluxConvert.Core` net8.0, `FluxConvert.App` net8.0-windows WPF, `FluxConvert.Core.Tests` xUnit), shared build props, per-monitor-V2 DPI manifest, colour-token dictionary, and a temporary shell window that launches and closes cleanly. | ✅ | ✅ 0 warnings | ✅ 4/4 xUnit tests green | `70bb970` |
 | F-102 | Composition root, file logging, settings persistence | DI container (validated at build), `AppPaths` data-root resolution, daily rotating file logger, atomic JSON settings persistence with corrupt-file quarantine. | ✅ | ✅ 0 warnings | ✅ 27/27 xUnit tests green | `c692935` |
-| F-103 | External media tool locator and process runner | `ProcessRunner` (argument-list based, no shell, concurrent output drain, timeout, cancellation, process-tree kill) and `ToolLocator` (settings → bundled → `PATH`, cached version probe, never throws). | ✅ | ✅ 0 warnings | ✅ 43/43 xUnit tests green | see § 8 |
+| F-103 | External media tool locator and process runner | `ProcessRunner` (argument-list based, no shell, concurrent output drain, timeout, cancellation, process-tree kill) and `ToolLocator` (settings → bundled → `PATH`, cached version probe, never throws). | ✅ | ✅ 0 warnings | ✅ 43/43 xUnit tests green | `29aff83` |
+| F-104 | Notification-area shell, single instance, graceful shutdown | Tray icon with context menu, no taskbar button, hide-on-close, second-instance activation, quit confirmation while a conversion runs, code-drawn application icon. | ✅ | ✅ 0 warnings | ✅ 54/54 xUnit tests green + 4 live Win32 checks | see § 8 |
 
 Nothing else is complete. **No conversion feature exists yet** — no format in the README table is
 currently implemented.
@@ -58,7 +59,7 @@ currently implemented.
 
 ## 4. Features In Progress
 
-**None.** F-104 is the next feature and has not been started.
+**None.** F-105 is the next feature and has not been started.
 
 ---
 
@@ -116,8 +117,8 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | | |
 | --- | --- |
 | **Most recent build** | `dotnet build FluxConvert.sln -c Debug` → **Build succeeded, 0 Warning(s), 0 Error(s)** (2026-10-21) |
-| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 43, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`) |
-| **Manual verification** | App launched from `bin\Debug\net8.0-windows\FluxConvert.App.exe` with an empty data root: it created `%LOCALAPPDATA%\FluxConvert\{logs,temp}`, wrote `logs\fluxconvert-20261021.log` with a correctly formatted line, showed its window and shut down cleanly. Re-verified after the F-103 container registrations. |
+| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 54, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`, `SingleInstanceCoordinatorTests`, `ConversionActivityTrackerTests`) |
+| **Manual verification** | The running process was inspected with Win32 calls: DPI awareness `PER_MONITOR_DPI_AWARE`; the shell window is visible at startup; `WM_CLOSE` hides it while the process stays alive; a second launch exits immediately and brings the first instance's window back. The notification-area icon was created (its helper windows exist), but this machine's taskbar is auto-hidden so the tray area could not be photographed. The application window was screenshotted and renders correctly. |
 | **Known failures / limitations** | FFmpeg, FFprobe and ImageMagick are **not installed** on this machine, so the locator reports them as unavailable and no real conversion has been attempted. Integration tests are designed to skip with a printed reason rather than fail. |
 | **Last verified** | 2026-10-21 |
 
@@ -149,6 +150,7 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `70bb970` | `chore: initialize WPF application foundation` | F-101 — solution, three projects, build props, DPI manifest, colour tokens, placeholder shell, first tests | **Yes** |
 | `c692935` | `feat: add composition root, file logging and settings persistence` | F-102 — DI container, `AppPaths`, file logger, atomic JSON settings with quarantine | **Yes** |
 | `29aff83` | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Yes** |
+| *(this commit)* | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Local only** |
 
 All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
 authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
@@ -158,31 +160,29 @@ returned `29aff83`. Further pushes need the same explicit authorisation.
 
 ## 9. Next Steps
 
-### Next feature: **F-104 — Application shell: tray icon, single instance, graceful shutdown**
+### Next feature: **F-105 — `--diagnostics` command-line mode**
 
-**Goal.** Turn the temporary shell into the real application shell: the process lives in the
-notification area, a second launch activates the running instance, and shutting down while work
-is in flight is handled deliberately.
+**Goal.** Give the user (and support) a single command that reports what the application found on
+this machine.
 
 **Acceptance criteria**
 
-1. The application can run without occupying a taskbar button (`ShowInTaskbar = false` plus a
-   notification-area icon).
-2. The notification-area icon opens the interface and offers *Show*, *Settings* and *Exit*.
-3. A second launch signals the running instance (which then shows the interface) instead of
-   starting a duplicate process.
-4. Closing the interface hides it to the notification area; *Exit* really quits.
-5. Quitting while a conversion is running asks for confirmation first.
-6. Unit tests cover the single-instance coordination logic; the rest is verified manually.
+1. `FluxConvert.App.exe --diagnostics` prints the application data root, the log location, the
+   detected media tools with their versions and paths, and the effective settings, then exits
+   without opening a window.
+2. The report is written to standard output so it can be redirected to a file.
+3. A missing tool is listed with the reason, not omitted.
+4. Unit tests cover the report builder; the printed output is verified manually.
 
 **Recommended tests**
 
-- Unit: the second instance detects the first and signals it instead of starting a window.
-- Manual: tray icon, context menu, hide/restore, and the quit confirmation.
+- Unit: the report contains a line for each of the three tools, including the missing ones.
+- Unit: the report states the application data root.
+- Manual: run the command and read the output.
 
 **Prerequisites**
 
-- F-103 (done).
+- F-104 (done).
 
 ---
 
@@ -190,7 +190,7 @@ is in flight is handled deliberately.
 
 1. `git status` — confirm a clean tree on `main`.
 2. Read this file, then `docs/PROGRESS.md` for the detailed log.
-3. Check `docs/ROADMAP.md` for the status of the next feature (F-104).
+3. Check `docs/ROADMAP.md` for the status of the next feature (F-105).
 4. Inspect `docs/adr/` for the accepted decisions that constrain the implementation.
 
 **Relevant source files today**
@@ -202,8 +202,10 @@ src/FluxConvert.Core/Infrastructure/FileLoggerProvider.cs
 src/FluxConvert.Core/Settings/*                    persisted preferences
 src/FluxConvert.Core/Process/*                     safe external process execution
 src/FluxConvert.Core/Tools/*                       media tool discovery
+src/FluxConvert.Core/Shell/*                       single instance, activity tracking
 src/FluxConvert.App/Composition/AppServices.cs     DI composition root
-src/FluxConvert.App/App.xaml(.cs)                  entry point
+src/FluxConvert.App/App.xaml(.cs)                  entry point and application shell
+src/FluxConvert.App/Shell/*                        notification-area icon, drawn icon
 src/FluxConvert.App/ShellWindow.xaml(.cs)          temporary shell, replaced by the radial widget
 src/FluxConvert.App/Themes/Palette.xaml            colour tokens
 tests/FluxConvert.Core.Tests/                       xUnit suite
@@ -214,18 +216,23 @@ tests/FluxConvert.Core.Tests/                       xUnit suite
 > file must never be emptied — otherwise the build fails with `CS0103: InitializeComponent`.
 
 > **Implicit usings gotcha.** WPF projects get a reduced implicit-usings set. `System.IO` is **not**
-> included — add `using System.IO;` explicitly in App-project files that need it.
+> included — add `using System.IO;` explicitly in App-project files that need it. Enabling Windows
+> Forms adds `System.Windows.Forms` and `System.Drawing` implicitly, which makes `Application`,
+> `Color` and `Pen` ambiguous; both are removed again with `<Using Remove="..." />`.
 
 > **Namespace gotcha.** `FluxConvert.Core.Process` shadows `System.Diagnostics.Process` inside
 > that namespace. Use the `DiagnosticsProcess` alias.
 
-**Continuation checklist for F-104**
+> **DPI gotcha.** `ApplicationHighDpiMode` does **not** write the DPI settings into the manifest.
+> The manifest in `src/FluxConvert.App/app.manifest` declares Per-Monitor-V2 by hand and
+> `WFAC010` is suppressed with that reason recorded.
 
-- [ ] `src/FluxConvert.App/Shell/SingleInstanceCoordinator.cs` (named mutex + activation signal)
-- [ ] `src/FluxConvert.App/Shell/TrayIcon.cs` (notification-area icon and context menu)
-- [ ] `ShowInTaskbar = false`; closing hides to the tray; *Exit* quits
-- [ ] Quit confirmation while a conversion is running
-- [ ] Unit tests for the coordination logic
+**Continuation checklist for F-105**
+
+- [ ] `src/FluxConvert.Core/Diagnostics/DiagnosticsReport.cs` — the report model + formatter
+- [ ] `src/FluxConvert.App/Diagnostics/DiagnosticsCommand.cs` — `--diagnostics` handling
+- [ ] `App.OnStartup` detects the flag, prints the report and exits without a window
+- [ ] Unit tests for the report contents
 - [ ] `dotnet build` → 0 warnings; `dotnet test` → green
 - [ ] Update this file, `docs/PROGRESS.md`, `docs/ROADMAP.md`
-- [ ] Commit: `feat: add tray icon, single instance and graceful shutdown`
+- [ ] Commit: `feat: add diagnostics command line mode`

@@ -12,7 +12,13 @@
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
       <!-- The floating widget is positioned in device pixels and must stay crisp on
-           mixed-DPI multi-monitor setups. -->
+           mixed-DPI multi-monitor setups, so the process declares Per-Monitor-V2 awareness.
+
+           The Windows Forms SDK warns against declaring DPI settings here (WFAC010) and asks
+           for ApplicationHighDpiMode instead. That property only configures the Windows Forms
+           scaling of *forms*, which this application does not have: the only Windows Forms
+           control in the product is the notification-area icon. WPF owns the user interface and
+           honours the manifest, so the manifest is the correct place for this setting. -->
       <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
       <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>

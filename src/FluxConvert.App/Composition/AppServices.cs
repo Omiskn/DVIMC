@@ -2,6 +2,7 @@ using System.IO;
 using FluxConvert.Core.Infrastructure;
 using FluxConvert.Core.Process;
 using FluxConvert.Core.Settings;
+using FluxConvert.Core.Shell;
 using FluxConvert.Core.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,7 @@ public static class AppServices
         services.AddSingleton(paths);
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IProcessRunner, ProcessRunner>();
+        services.AddSingleton<IConversionActivity, ConversionActivityTracker>();
 
         // The search context is built from the settings at the moment it is first resolved, so a
         // path the user configured is always taken into account.

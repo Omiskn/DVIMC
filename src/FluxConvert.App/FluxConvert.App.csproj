@@ -4,12 +4,30 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <!-- Windows Forms is enabled for one control only: the notification-area icon
+         (System.Windows.Forms.NotifyIcon). The user interface itself stays in WPF. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- WFAC010 asks for DPI awareness to be declared through ApplicationHighDpiMode instead of
+         the application manifest. That property only configures Windows Forms *form* scaling,
+         which this application does not use; WPF owns the interface and honours the manifest.
+         The justification is documented in app.manifest. -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
     <RootNamespace>FluxConvert.App</RootNamespace>
     <AssemblyName>FluxConvert.App</AssemblyName>
     <Description>FluxConvert desktop shell: floating radial interface, conversion queue and settings.</Description>
     <!-- The floating widget is positioned in device pixels; per-monitor DPI awareness is required. -->
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Windows Forms is enabled for one control only: the notification-area icon
+         (System.Windows.Forms.NotifyIcon). The user interface itself stays in WPF.
+         The implicit WinForms and GDI+ usings are removed so that types such as
+         Application, Color and Pen do not become ambiguous in WPF code; the files that
+         really need them import them explicitly. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FluxConvert.Core\FluxConvert.Core.csproj" />
