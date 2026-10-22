@@ -154,7 +154,7 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `29aff83` | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Yes** |
 | `3cd3023` | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Yes** |
 | `3c52013` | `feat: add diagnostics command line mode` | F-105 — `--diagnostics` report, `--help` usage, console handling, 9 new tests | **Yes** |
-| *(this commit)* | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Local only** |
+| *(this commit)* | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Yes** |
 
 All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
 authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
