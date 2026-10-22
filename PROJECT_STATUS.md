@@ -26,9 +26,9 @@
 | | |
 | --- | --- |
 | **Current phase** | Phase 2 — Visual foundation and the radial interface |
-| **Current feature** | F-201 — Design tokens, reusable styles, original icon set (**Verified**) → next: F-202, the radial ring prototype |
-| **Overall completion** | ~28 % — Phase 1 complete; the full design system is in place and verified in the running application. **No conversion feature exists yet.** |
-| **Most recent verified milestone** | F-201 — Design system (0 warnings, 63/63 tests green, the whole token set / type scale / icon set / control styles screenshotted from the running app) |
+| **Current feature** | F-202 — The radial ring prototype (**Verified**) → next: F-203, the item interaction model |
+| **Overall completion** | ~33 % — Phase 1 complete; the design system and the floating radial widget are in place and verified against the reference. **No conversion feature exists yet.** |
+| **Most recent verified milestone** | F-202 — Radial ring prototype (0 warnings, 76/76 tests green; widget size, position, focus behaviour and hover verified against the live window and screenshotted) |
 | **Blockers** | None blocking. FFmpeg/FFprobe/ImageMagick are **not installed** on this machine; this is handled by runtime tool discovery (ADR-0002) and by gracefully skipping integration tests. |
 
 ### Environment facts (verified 2026-10-21)
@@ -52,7 +52,8 @@
 | F-103 | External media tool locator and process runner | `ProcessRunner` (argument-list based, no shell, concurrent output drain, timeout, cancellation, process-tree kill) and `ToolLocator` (settings → bundled → `PATH`, cached version probe, never throws). | ✅ | ✅ 0 warnings | ✅ 43/43 xUnit tests green | `29aff83` |
 | F-104 | Notification-area shell, single instance, graceful shutdown | Tray icon with context menu, no taskbar button, hide-on-close, second-instance activation, quit confirmation while a conversion runs, code-drawn application icon. | ✅ | ✅ 0 warnings | ✅ 54/54 xUnit tests green + 4 live Win32 checks | `3cd3023` |
 | F-105 | `--diagnostics` command-line mode | Plain-text report of the system, paths, media tools and effective settings; `--help` usage text; works while the application is already running. | ✅ | ✅ 0 warnings | ✅ 63/63 xUnit tests green + real command run | `3c52013` |
-| F-201 | Design tokens, reusable styles, original icon set | Complete palette / type scale / spacing scale, 14 original vector icons, radial item badge with four states, core disc, detail strip, progress ring. | ✅ | ✅ 0 warnings | ✅ 63/63 tests green + 2 screenshots of the live app | see § 8 |
+| F-201 | Design tokens, reusable styles, original icon set | Complete palette / type scale / spacing scale, 14 original vector icons, radial item badge with four states, core disc, detail strip, progress ring. | ✅ | ✅ 0 warnings | ✅ 63/63 tests green + 2 screenshots of the live app | `c2c8ce1` |
+| F-202 | The radial ring prototype | Floating borderless transparent widget: custom-drawn glass ring, solid core disc, four real buttons on the ring, detail strip, work-area placement with DPI-correct clamping. | ✅ | ✅ 0 warnings | ✅ 76/76 tests green + live size/position/focus/hover checks + 2 screenshots | see § 8 |
 
 Nothing else is complete. **No conversion feature exists yet** — no format in the README table is
 currently implemented.
@@ -61,7 +62,7 @@ currently implemented.
 
 ## 4. Features In Progress
 
-**None.** F-202 is the next feature and has not been started.
+**None.** F-203 is the next feature and has not been started.
 
 ---
 
@@ -119,8 +120,8 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | | |
 | --- | --- |
 | **Most recent build** | `dotnet build FluxConvert.sln -c Debug` → **Build succeeded, 0 Warning(s), 0 Error(s)** (2026-10-22) |
-| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 63, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`, `SingleInstanceCoordinatorTests`, `ConversionActivityTrackerTests`, `DiagnosticsReportTests`) |
-| **Manual verification** | The running process was inspected with Win32 calls: DPI awareness `PER_MONITOR_DPI_AWARE`; the shell window is visible at startup; `WM_CLOSE` hides it while the process stays alive; a second launch exits immediately and brings the first instance's window back. `FluxConvert.App.exe --diagnostics` produced a 34-line report (exit code 0) and `--help` printed the usage text. The design-system preview was screenshotted twice from the live window and every token, style and icon was inspected. |
+| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 76, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`, `SingleInstanceCoordinatorTests`, `ConversionActivityTrackerTests`, `DiagnosticsReportTests`, `RadialGeometryTests`) |
+| **Manual verification** | The floating widget was verified against the live process: 435 × 520 physical pixels = 348 × 416 DIP at 125 % scaling; placed at 1172, 384 DIP in the bottom right of the work area; the foreground window is unchanged when it appears, so it never steals focus; hovering the Images badge updates the detail strip. Earlier checks: DPI awareness `PER_MONITOR_DPI_AWARE`, hide-on-close keeps the process alive, a second launch activates the running instance, `--diagnostics` prints a 34-line report. |
 | **Known failures / limitations** | FFmpeg, FFprobe and ImageMagick are **not installed** on this machine, so the locator reports them as unavailable and no real conversion has been attempted. Integration tests are designed to skip with a printed reason rather than fail. |
 | **Last verified** | 2026-10-22 |
 
@@ -154,7 +155,8 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `29aff83` | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Yes** |
 | `3cd3023` | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Yes** |
 | `3c52013` | `feat: add diagnostics command line mode` | F-105 — `--diagnostics` report, `--help` usage, console handling, 9 new tests | **Yes** |
-| *(this commit)* | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Yes** |
+| `c2c8ce1` | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Yes** |
+| *(this commit)* | `feat: add the radial ring prototype` | F-202 — floating widget, glass ring, core disc, item badges, work-area placement | **Local only** |
 
 All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
 authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
@@ -164,31 +166,30 @@ returned `29aff83`. Further pushes need the same explicit authorisation.
 
 ## 9. Next Steps
 
-### Next feature: **F-202 — The radial ring prototype**
+### Next feature: **F-203 — Item interaction model**
 
-**Goal.** Replace the design preview with the real floating widget: a borderless, transparent,
-topmost window that draws the glass ring, the solid core disc and the item badges at the radii
-documented in `docs/ART_DIRECTION.md`.
+**Goal.** Make the ring a real menu: keyboard navigation around the ring, a clear distinction
+between hovered, focused and selected items, and a way out with Escape.
 
 **Acceptance criteria**
 
-1. The widget is a borderless, transparent, always-on-top `Window` sized to the widget plus its
-   shadow bleed.
-2. The ring, the core disc and the item badges are drawn with the theme resources at the
-   documented radii (ring outer 150, inner 96, item radius 123, core disc 164).
-3. The items are real buttons arranged evenly around the ring, keyboard navigable.
-4. The widget is positioned so it always stays fully inside the visible desktop area.
-5. The geometry is a pure, unit-tested helper; the drawing itself is verified by a screenshot.
+1. The arrow keys move the focus around the ring in the direction the user expects; `Home` and
+   `End` jump to the first and the last item.
+2. `Enter` or `Space` activates the focused item; `Escape` closes the widget and returns the
+   focus to the previous application.
+3. The hovered item and the keyboard-focused item are visually distinct from each other and from
+   the selected item.
+4. A disabled item cannot be focused or activated and explains why it is unavailable.
+5. The selection logic is a pure function and is unit tested.
 
 **Recommended tests**
 
-- Unit: the geometry helper returns evenly spaced positions, handles one item and many items, and
-  clamps the widget position to the work area.
-- Manual: the widget is launched, screenshotted and compared with `docs/ART_DIRECTION.md`.
+- Unit: the next/previous item wraps around the ring and skips disabled items.
+- Manual: arrow keys, Enter and Escape in the live widget.
 
 **Prerequisites**
 
-- F-201 (done).
+- F-202 (done).
 
 ---
 
@@ -196,7 +197,7 @@ documented in `docs/ART_DIRECTION.md`.
 
 1. `git status` — confirm a clean tree on `main`.
 2. Read this file, then `docs/PROGRESS.md` for the detailed log.
-3. Check `docs/ROADMAP.md` for the status of the next feature (F-202).
+3. Check `docs/ROADMAP.md` for the status of the next feature (F-203).
 4. Inspect `docs/adr/` for the accepted decisions that constrain the implementation.
 
 **Relevant source files today**
@@ -210,6 +211,7 @@ src/FluxConvert.Core/Process/*                     safe external process executi
 src/FluxConvert.Core/Tools/*                       media tool discovery
 src/FluxConvert.Core/Shell/*                       single instance, activity tracking
 src/FluxConvert.Core/Diagnostics/*                 the diagnostics report
+src/FluxConvert.Core/Layout/RadialGeometry.cs      pure layout maths (unit tested)
 src/FluxConvert.App/Composition/AppServices.cs     DI composition root
 src/FluxConvert.App/App.xaml(.cs)                  entry point and application shell
 src/FluxConvert.App/Shell/*                        notification-area icon, drawn icon
@@ -217,7 +219,9 @@ src/FluxConvert.App/Diagnostics/*                  command-line modes
 src/FluxConvert.App/Controls/*                     ProgressRing, RadialItem attached property
 src/FluxConvert.App/Converters/*                   hex and resource-key converters
 src/FluxConvert.App/Themes/*                       palette, typography, spacing, icons, controls
-src/FluxConvert.App/ShellWindow.xaml(.cs)          design-system preview, replaced by the widget
+src/FluxConvert.App/Radial/*                       the floating widget
+src/FluxConvert.App/ViewModels/*                   radial menu and item view models
+src/FluxConvert.App/ShellWindow.xaml(.cs)          the design-system preview
 tests/FluxConvert.Core.Tests/                       xUnit suite
 ```
 
@@ -244,15 +248,18 @@ tests/FluxConvert.Core.Tests/                       xUnit suite
 > **Console gotcha.** `AttachConsole` replaces the standard handles. If standard output is already
 > redirected to a file or a pipe, never re-open it — the redirection would be lost.
 
-**Continuation checklist for F-202**
+> **Screenshot gotcha.** A capture script must call `SetProcessDpiAwarenessContext(-4)` before it
+> creates any window. Otherwise the coordinates from user32 are virtualised and the capture is
+> clipped, which looks like a layout bug in the application.
 
-- [ ] `src/FluxConvert.App/Radial/RadialGeometry.cs` — pure geometry helper (unit tested)
-- [ ] `src/FluxConvert.App/Radial/RingSurface.cs` — the custom-drawn glass ring
-- [ ] `src/FluxConvert.App/Radial/RadialWindow.xaml(.cs)` — the borderless floating widget
-- [ ] `src/FluxConvert.App/Radial/RadialItemModel.cs` — the item the ring shows
-- [ ] `src/FluxConvert.App/Radial/WorkAreaProvider.cs` — keeps the widget on screen
-- [ ] Replace the design preview with the widget in `App.OnStartup`
-- [ ] Screenshot the live widget and compare it with `docs/ART_DIRECTION.md`
+**Continuation checklist for F-203**
+
+- [ ] `src/FluxConvert.Core/Layout/RingSelection.cs` — pure next/previous item logic (unit tested)
+- [ ] `RadialMenuViewModel` gains the focused item and the activation command
+- [ ] `RadialWindow` handles the arrow keys, Enter, Space and Escape
+- [ ] Escape hides the widget and returns the focus to the previous application
+- [ ] Distinct hover / focus / selected visuals
+- [ ] Disabled items are skipped and explain why
 - [ ] `dotnet build` → 0 warnings; `dotnet test` → green
 - [ ] Update this file, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/ART_DIRECTION.md`
-- [ ] Commit: `feat: add the radial ring prototype`
+- [ ] Commit: `feat: add radial menu keyboard and selection interaction`

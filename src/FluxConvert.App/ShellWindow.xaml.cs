@@ -5,11 +5,13 @@ using FluxConvert.App.Converters;
 namespace FluxConvert.App;
 
 /// <summary>
-/// Temporary application shell window. Replaced by the floating radial widget in Phase 2.
+/// The design-system preview. Replaced the temporary shell in F-202.
 /// </summary>
 /// <remarks>
-/// While the radial widget is being built, the shell doubles as the design-system preview so
-/// that every token, style and icon can be looked at in the running application.
+/// The floating radial widget is the real interface now. This window stays as a development aid
+/// that shows every colour token, type style, icon and control style of the product in one
+/// place, so they can be compared against <c>docs/ART_DIRECTION.md</c>. It is reachable from the
+/// notification-area menu.
 /// </remarks>
 public partial class ShellWindow : Window
 {

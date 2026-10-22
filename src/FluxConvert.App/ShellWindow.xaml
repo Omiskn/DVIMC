@@ -13,7 +13,7 @@
         xmlns:local="clr-namespace:FluxConvert.App"
         xmlns:controls="clr-namespace:FluxConvert.App.Controls"
         xmlns:conv="clr-namespace:FluxConvert.App.Converters"
-        Title="FluxConvert"
+        Title="FluxConvert - Design preview"
         Width="960"
         Height="820"
         WindowStartupLocation="CenterScreen"

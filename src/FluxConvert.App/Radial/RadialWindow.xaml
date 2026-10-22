@@ -1,0 +1,113 @@
+<!--
+  The floating radial widget.
+
+  A borderless, transparent, always-on-top window that draws the glass ring, the solid core disc
+  and the item badges. The ring itself is painted by RingSurface; the items are real buttons
+  hosted on a canvas so that keyboard navigation, focus and screen readers come from the
+  framework.
+-->
+<Window x:Class="FluxConvert.App.Radial.RadialWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:radial="clr-namespace:FluxConvert.App.Radial"
+        Title="FluxConvert"
+        SizeToContent="WidthAndHeight"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Ideal">
+    <Grid x:Name="Root" Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="320" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============================== Ring ============================== -->
+        <Grid Grid.Row="0" Width="320" Height="320" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <radial:RingSurface />
+
+            <!-- The item badges. Their positions come from the view model. -->
+            <ItemsControl ItemsSource="{Binding Items}"
+                          Width="320"
+                          Height="320"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Focusable="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas Width="320" Height="320" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Width="44"
+                                Height="44"
+                                Foreground="{Binding Accent}"
+                                IsEnabled="{Binding IsEnabled}"
+                                Tag="{Binding}"
+                                ToolTip="{Binding Description}"
+                                MouseEnter="OnItemMouseEnter"
+                                MouseLeave="OnItemMouseLeave">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource RadialItemBadge}" />
+                            </Button.Style>
+                            <Path Style="{StaticResource IconPath}" Data="{Binding Icon}" />
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- =========================== Core disc =========================== -->
+            <Border Style="{StaticResource CoreDisc}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="140">
+                    <TextBlock Style="{StaticResource Type.Title}"
+                               HorizontalAlignment="Center"
+                               Text="{Binding Title}"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Style="{StaticResource Type.Caption}"
+                               Margin="0,5,0,0"
+                               HorizontalAlignment="Center"
+                               Text="{Binding Subtitle}"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- =========================== Detail strip ========================== -->
+        <Border Grid.Row="1"
+                Style="{StaticResource DetailStrip}"
+                Margin="0,12,0,0"
+                HorizontalAlignment="Center">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource Type.Label}" Text="{Binding DetailTitle}" />
+                    <TextBlock Style="{StaticResource Type.Caption}"
+                               Margin="0,2,0,0"
+                               Text="{Binding DetailDescription}"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <Path Grid.Column="1"
+                      Style="{StaticResource IconPath}"
+                      VerticalAlignment="Center"
+                      Data="{StaticResource Icon.ChevronRight}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

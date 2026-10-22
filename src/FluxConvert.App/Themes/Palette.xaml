@@ -74,10 +74,12 @@
 
     <!-- =========================== Gradients ============================ -->
 
-    <!-- The core disc: one subtle vertical lift, nothing more. -->
+    <!-- The core disc: one subtle vertical lift, nothing more. It is deliberately a little
+         lighter than the ring so that the solid disc reads as a distinct object inside the
+         opening, the way the reference does. -->
     <LinearGradientBrush x:Key="Gradient.CoreDisc" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Offset="0" Color="#1C2439" />
-        <GradientStop Offset="1" Color="#101627" />
+        <GradientStop Offset="0" Color="#212B44" />
+        <GradientStop Offset="1" Color="#141B2D" />
     </LinearGradientBrush>
 
     <!-- The ring: a barely-there lift from the top-left. -->

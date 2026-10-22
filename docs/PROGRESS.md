@@ -416,12 +416,83 @@ from the live window and inspected.
 
 ---
 
+### F-202 · The radial ring prototype — **Verified**
+
+**Created**
+
+```text
+src/FluxConvert.Core/Layout/RadialGeometry.cs       pure geometry: item positions, work-area clamping
+src/FluxConvert.App/Radial/RingSurface.cs           the custom-drawn glass ring
+src/FluxConvert.App/Radial/WorkAreaProvider.cs      the work area of the monitor under the pointer
+src/FluxConvert.App/Radial/RadialWindow.xaml(.cs)   the floating widget
+src/FluxConvert.App/ViewModels/RadialItemViewModel.cs
+src/FluxConvert.App/ViewModels/RadialMenuViewModel.cs
+tests/FluxConvert.Core.Tests/RadialGeometryTests.cs 13 tests
+```
+
+**Modified**
+
+```text
+src/FluxConvert.App/App.xaml.cs                   the widget replaces the design preview as the main UI
+src/FluxConvert.App/Shell/TrayIconController.cs   a "Design preview" entry
+src/FluxConvert.App/ShellWindow.xaml(.cs)         retitled, it is now the design preview
+src/FluxConvert.App/Themes/Palette.xaml           the core disc is a little lighter than the ring
+```
+
+**What it does**
+
+- A borderless, transparent, always-on-top window, 348 × 416 device-independent pixels, that
+  never takes the focus when it appears.
+- `RingSurface` paints the annulus as a single shape (the outer circle minus the inner circle),
+  so the inner edge stays crisp instead of leaving the halo two overlapping ellipses would.
+- Four real buttons sit on the ring at the documented radii: Images (magenta), Video (violet),
+  Audio (teal) and More options. Their positions come from `RadialGeometry`, which is pure and
+  unit tested.
+- The core disc carries the product name and a hint; the detail strip below the ring describes
+  the item the pointer is over.
+- The widget is placed in the bottom right corner of the work area of the monitor that holds the
+  pointer, and is clamped so that it can never end up partly off-screen. The work area is read
+  with `MonitorFromPoint`/`GetMonitorInfo` and converted to device-independent pixels with that
+  monitor's effective DPI, so the widget keeps the same physical size on a mixed-DPI setup.
+
+**Build:** `dotnet build FluxConvert.sln -c Debug` → *Build succeeded, 0 Warning(s), 0 Error(s)*.
+
+**Tests:** `dotnet test FluxConvert.sln -c Debug` → *Failed: 0, Passed: 76, Skipped: 0*.
+
+**Manual verification**
+
+| Check | Result |
+| --- | --- |
+| Widget size | 435 × 520 physical pixels = 348 × 416 DIP at 125 % scaling — exactly as designed |
+| Position | 1172, 384 DIP — the bottom right of the 1536 × 816 work area with a 16 DIP margin |
+| Focus | the foreground window is unchanged after the widget appears, so it never steals focus |
+| Hover | moving the pointer over the Images badge changes the detail strip to *Images — Convert to PNG, JPEG, WEBP, AVIF, BMP, TIFF, GIF or ICO* |
+
+Two screenshots of the live widget were captured and inspected against the reference: a
+translucent glass ring with a large open centre, an opaque core disc inside it, four rounded
+square badges evenly spaced on the ring, and the detail strip below.
+
+**Issues found and fixed during this feature**
+
+- `EventSetter` cannot resolve a directly-routed event such as `MouseEnter` by name, which
+  crashed the application at start-up with a `XamlParseException`. The plain CLR event attributes
+  on the button are used instead.
+- **The first screenshots were wrong, not the widget.** The capture script was not per-monitor
+  DPI aware, so `GetWindowRect` returned virtualised coordinates and `PrintWindow` clipped the
+  widget: the ring looked oversized and the detail strip appeared to be missing. The capture
+  script now enables per-monitor V2 awareness before it touches any window, and the widget is
+  exactly the size it should be.
+- The core disc was a shade darker than the ring, which inverted the relationship of the
+  reference (a solid disc inside translucent glass). It is now slightly lighter.
+
+---
+
 ## Next up
 
-**F-202 · The radial ring prototype.**
+**F-203 · Item interaction model.**
 
-- Acceptance criteria: a borderless, transparent, topmost widget draws the glass ring, the core
-  disc and the item badges at the documented radii; the items are real buttons arranged evenly on
-  the ring; the widget stays inside the visible desktop area.
-- Recommended tests: manual verification with a screenshot; the geometry helper is a pure
-  function and can be unit tested.
+- Acceptance criteria: arrow keys move the selection around the ring, Enter activates the focused
+  item, Escape closes the widget, the hovered and focused items are visually distinct, and a
+  disabled item explains why it cannot be used.
+- Recommended tests: manual verification of the keyboard behaviour; the selection logic is a
+  pure function and can be unit tested.

@@ -2,6 +2,7 @@
 using System.Windows;
 using FluxConvert.App.Composition;
 using FluxConvert.App.Diagnostics;
+using FluxConvert.App.Radial;
 using FluxConvert.App.Shell;
 using FluxConvert.Core.Settings;
 using FluxConvert.Core.Shell;
@@ -18,7 +19,8 @@ public partial class App : Application, IDisposable
     private SingleInstanceCoordinator? _singleInstance;
     private TrayIconController? _tray;
     private IDisposable? _activationListener;
-    private ShellWindow? _shell;
+    private RadialWindow? _radial;
+    private ShellWindow? _preview;
     private bool _disposed;
 
     /// <summary>
@@ -64,18 +66,19 @@ public partial class App : Application, IDisposable
         var settings = _services.GetRequiredService<ISettingsService>();
         settings.Load();
 
-        _tray = new TrayIconController(ShowShell, RequestExit);
+        _tray = new TrayIconController(ShowShell, RequestExit, ShowDesignPreview);
         _tray.Show();
 
         _activationListener = _singleInstance.StartActivationListener(
             () => Dispatcher.Invoke(ShowShell));
 
-        _shell = new ShellWindow();
-        MainWindow = _shell;
+        _radial = new RadialWindow();
+        MainWindow = _radial;
 
         if (!settings.Current.StartMinimizedToTray)
         {
-            _shell.Show();
+            _radial.Show();
+            _radial.PositionInWorkArea();
         }
     }
 
@@ -84,31 +87,6 @@ public partial class App : Application, IDisposable
     {
         Dispose();
         base.OnExit(e);
-    }
-
-    /// <summary>
-    /// Runs a command-line mode and ends the process with its exit code.
-    /// </summary>
-    /// <param name="arguments">The command-line arguments.</param>
-    private void RunCommandLineMode(string[] arguments)
-    {
-        var exitCode = 0;
-
-        try
-        {
-            _services = AppServices.Build();
-
-            // The command line is synchronous from the user's point of view, so the small wait is
-            // done here instead of blocking the dispatcher.
-            exitCode = DiagnosticsCommand.RunAsync(arguments, _services).GetAwaiter().GetResult();
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine("The diagnostics report could not be produced: " + ex.Message);
-            exitCode = 1;
-        }
-
-        Shutdown(exitCode);
     }
 
     /// <inheritdoc />
@@ -137,29 +115,45 @@ public partial class App : Application, IDisposable
     }
 
     /// <summary>
-    /// Brings the interface to the front, creating it if necessary.
+    /// Brings the floating interface to the front, creating it if necessary.
     /// </summary>
     public void ShowShell()
     {
-        if (_shell is null)
+        if (_radial is null)
         {
             return;
         }
 
-        if (!_shell.IsVisible)
+        if (!_radial.IsVisible)
         {
-            _shell.Show();
+            _radial.Show();
         }
 
-        if (_shell.WindowState == WindowState.Minimized)
+        if (_radial.WindowState == WindowState.Minimized)
         {
-            _shell.WindowState = WindowState.Normal;
+            _radial.WindowState = WindowState.Normal;
         }
 
-        _shell.Activate();
-        _shell.Topmost = true;
-        _shell.Topmost = false;
-        _shell.Focus();
+        _radial.Activate();
+        _radial.Topmost = true;
+        _radial.Topmost = false;
+        _radial.Focus();
+    }
+
+    /// <summary>
+    /// Opens the design-system preview. This is a development aid that shows every token, style
+    /// and icon of the interface in one place.
+    /// </summary>
+    public void ShowDesignPreview()
+    {
+        _preview ??= new ShellWindow();
+
+        if (!_preview.IsVisible)
+        {
+            _preview.Show();
+        }
+
+        _preview.Activate();
     }
 
     /// <summary>
@@ -186,5 +180,30 @@ public partial class App : Application, IDisposable
 
         IsExiting = true;
         Shutdown();
+    }
+
+    /// <summary>
+    /// Runs a command-line mode and ends the process with its exit code.
+    /// </summary>
+    /// <param name="arguments">The command-line arguments.</param>
+    private void RunCommandLineMode(string[] arguments)
+    {
+        var exitCode = 0;
+
+        try
+        {
+            _services = AppServices.Build();
+
+            // The command line is synchronous from the user's point of view, so the small wait is
+            // done here instead of blocking the dispatcher.
+            exitCode = DiagnosticsCommand.RunAsync(arguments, _services).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("The diagnostics report could not be produced: " + ex.Message);
+            exitCode = 1;
+        }
+
+        Shutdown(exitCode);
     }
 }

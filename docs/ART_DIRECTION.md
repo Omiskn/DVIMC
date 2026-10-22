@@ -180,7 +180,7 @@ actionable without exposing internal paths in the summary line.
 | Reusable styles (`Themes/Controls.xaml`): item badge, core disc, detail strip, card, ghost button | **Verified** 2026-10-22 |
 | `ProgressRing` control (determinate + indeterminate) | **Verified** 2026-10-22 |
 | Interactive states of the radial item badge (rest, focused, selected, disabled, submenu) | **Verified** 2026-10-22 |
-| Static radial ring prototype | Planned (F-202) |
+| Static radial ring prototype | **Verified** 2026-10-22 (F-202) |
 | Category → format drill-down transition | Planned (F-204) |
 | Reduced-motion support | Planned (F-204) |
 | Comparison against the reference after the full interface exists | Planned (F-205) |

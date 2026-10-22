@@ -32,7 +32,11 @@ public sealed class TrayIconController : IDisposable
     /// </summary>
     /// <param name="onShow">Invoked when the user asks for the interface to be shown.</param>
     /// <param name="onExit">Invoked when the user asks the application to quit.</param>
-    public TrayIconController(Action onShow, Action onExit)
+    /// <param name="onDesignPreview">
+    /// Invoked when the user asks for the design-system preview. This is a development aid and
+    /// may be <see langword="null"/> in a release build.
+    /// </param>
+    public TrayIconController(Action onShow, Action onExit, Action? onDesignPreview = null)
     {
         ArgumentNullException.ThrowIfNull(onShow);
         ArgumentNullException.ThrowIfNull(onExit);
@@ -41,6 +45,12 @@ public sealed class TrayIconController : IDisposable
 
         _menu = new ContextMenuStrip { ShowImageMargin = false };
         _menu.Items.Add("Show FluxConvert", null, (_, _) => onShow());
+
+        if (onDesignPreview is not null)
+        {
+            _menu.Items.Add("Design preview", null, (_, _) => onDesignPreview());
+        }
+
         _menu.Items.Add(new ToolStripSeparator());
         _menu.Items.Add("Exit", null, (_, _) => onExit());
 
