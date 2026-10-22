@@ -160,7 +160,7 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `c2c8ce1` | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Yes** |
 | `ad6d860` | `feat: add the radial ring prototype` | F-202 — floating widget, glass ring, core disc, item badges, work-area placement | **Yes** |
 | `bd53a95` | `docs: mark the F-202 commit as pushed` | F-202 hash and push state in this table | **Yes** |
-| *(this commit)* | `feat: add radial menu keyboard and selection interaction` | F-203 — `RingSelection`, view-model focus/selection state, key handling, focus restoration, distinct focus and selection visuals, disabled-item explanation | **Yes** |
+| `360eaba` | `feat: add radial menu keyboard and selection interaction` | F-203 — `RingSelection`, view-model focus/selection state, key handling, focus restoration, distinct focus and selection visuals, disabled-item explanation | **Yes** |
 
 Every commit above is on `origin/main`; each push was verified with
 `git ls-remote origin refs/heads/main`. Further pushes need the user's explicit authorisation.
