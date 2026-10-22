@@ -5,11 +5,16 @@
   and the item badges. The ring itself is painted by RingSurface; the items are real buttons
   hosted on a canvas so that keyboard navigation, focus and screen readers come from the
   framework.
+
+  Each badge sits inside a hit-testable grid. The grid, not the button, owns the pointer handlers:
+  a disabled WPF button raises no mouse events, and a disabled item still has to be able to
+  explain itself in the detail strip.
 -->
 <Window x:Class="FluxConvert.App.Radial.RadialWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:radial="clr-namespace:FluxConvert.App.Radial"
+        xmlns:controls="clr-namespace:FluxConvert.App.Controls"
         Title="FluxConvert"
         SizeToContent="WidthAndHeight"
         WindowStyle="None"
@@ -32,7 +37,8 @@
             <radial:RingSurface />
 
             <!-- The item badges. Their positions come from the view model. -->
-            <ItemsControl ItemsSource="{Binding Items}"
+            <ItemsControl x:Name="ItemHost"
+                          ItemsSource="{Binding Items}"
                           Width="320"
                           Height="320"
                           HorizontalAlignment="Center"
@@ -51,19 +57,26 @@
                 </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Width="44"
-                                Height="44"
-                                Foreground="{Binding Accent}"
-                                IsEnabled="{Binding IsEnabled}"
-                                Tag="{Binding}"
-                                ToolTip="{Binding Description}"
-                                MouseEnter="OnItemMouseEnter"
-                                MouseLeave="OnItemMouseLeave">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource RadialItemBadge}" />
-                            </Button.Style>
-                            <Path Style="{StaticResource IconPath}" Data="{Binding Icon}" />
-                        </Button>
+                        <Grid Width="{StaticResource Size.ItemBadge}"
+                              Height="{StaticResource Size.ItemBadge}"
+                              Background="Transparent"
+                              MouseEnter="OnItemMouseEnter"
+                              MouseLeave="OnItemMouseLeave">
+                            <Button Foreground="{Binding Accent}"
+                                    IsEnabled="{Binding IsEnabled}"
+                                    ToolTip="{Binding HelpText}"
+                                    ToolTipService.ShowOnDisabled="True"
+                                    AutomationProperties.AutomationId="{Binding Id}"
+                                    AutomationProperties.Name="{Binding Label}"
+                                    AutomationProperties.HelpText="{Binding HelpText}"
+                                    controls:RadialItem.IsSelected="{Binding IsSelected}"
+                                    Click="OnItemClick">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource RadialItemBadge}" />
+                                </Button.Style>
+                                <Path Style="{StaticResource IconPath}" Data="{Binding Icon}" />
+                            </Button>
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -97,7 +110,17 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource Type.Label}" Text="{Binding DetailTitle}" />
+                    <TextBlock Text="{Binding DetailTitle}" TextTrimming="CharacterEllipsis">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Type.Label}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DetailIsWarning}" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource State.Warning}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                     <TextBlock Style="{StaticResource Type.Caption}"
                                Margin="0,2,0,0"
                                Text="{Binding DetailDescription}"

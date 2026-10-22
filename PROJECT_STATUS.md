@@ -4,7 +4,7 @@
 > development session, and update it in the same commit as any feature, verified milestone,
 > architectural change or newly discovered blocker.
 >
-> Last updated: **2026-10-21** · Overall stage: **Phase 0 complete — foundation starting**
+> Last updated: **2026-10-22** · Overall stage: **Phase 2 in progress — the radial interface is interactive**
 
 ---
 
@@ -17,7 +17,7 @@
 | **Target platform** | Windows 10 1809+ / Windows 11, x64 |
 | **Stack** | C#, WPF, XAML, MVVM (`CommunityToolkit.Mvvm`), `Microsoft.Extensions.DependencyInjection`, `Microsoft.Extensions.Logging`, `System.Text.Json`, FFmpeg/FFprobe for A/V, ImageMagick for images |
 | **Target framework** | `net8.0-windows` (see ADR-0001) |
-| **Stage** | Phase 0 (assessment + baseline) **complete**. Phase 1 (application foundation) **not started**. |
+| **Stage** | Phase 0 and Phase 1 **complete**. Phase 2 (visual foundation and the radial interface) **in progress** — the widget is interactive, but no conversion feature exists yet. |
 
 ---
 
@@ -26,9 +26,9 @@
 | | |
 | --- | --- |
 | **Current phase** | Phase 2 — Visual foundation and the radial interface |
-| **Current feature** | F-202 — The radial ring prototype (**Verified**) → next: F-203, the item interaction model |
-| **Overall completion** | ~33 % — Phase 1 complete; the design system and the floating radial widget are in place and verified against the reference. **No conversion feature exists yet.** |
-| **Most recent verified milestone** | F-202 — Radial ring prototype (0 warnings, 76/76 tests green; widget size, position, focus behaviour and hover verified against the live window and screenshotted) |
+| **Current feature** | F-203 — The item interaction model (**Verified**) → next: F-204, animation and the format drill-down |
+| **Overall completion** | ~38 % — Phase 1 complete; the design system, the floating widget and its keyboard interaction are verified. **No conversion feature exists yet.** |
+| **Most recent verified milestone** | F-203 — Item interaction model (0 warnings, 101/101 tests green; arrow keys, Home/End, Enter, Tab skipping a disabled item and Escape focus restoration verified key by key against the live widget, with screenshots of the three interaction states) |
 | **Blockers** | None blocking. FFmpeg/FFprobe/ImageMagick are **not installed** on this machine; this is handled by runtime tool discovery (ADR-0002) and by gracefully skipping integration tests. |
 
 ### Environment facts (verified 2026-10-21)
@@ -53,7 +53,8 @@
 | F-104 | Notification-area shell, single instance, graceful shutdown | Tray icon with context menu, no taskbar button, hide-on-close, second-instance activation, quit confirmation while a conversion runs, code-drawn application icon. | ✅ | ✅ 0 warnings | ✅ 54/54 xUnit tests green + 4 live Win32 checks | `3cd3023` |
 | F-105 | `--diagnostics` command-line mode | Plain-text report of the system, paths, media tools and effective settings; `--help` usage text; works while the application is already running. | ✅ | ✅ 0 warnings | ✅ 63/63 xUnit tests green + real command run | `3c52013` |
 | F-201 | Design tokens, reusable styles, original icon set | Complete palette / type scale / spacing scale, 14 original vector icons, radial item badge with four states, core disc, detail strip, progress ring. | ✅ | ✅ 0 warnings | ✅ 63/63 tests green + 2 screenshots of the live app | `c2c8ce1` |
-| F-202 | The radial ring prototype | Floating borderless transparent widget: custom-drawn glass ring, solid core disc, four real buttons on the ring, detail strip, work-area placement with DPI-correct clamping. | ✅ | ✅ 0 warnings | ✅ 76/76 tests green + live size/position/focus/hover checks + 2 screenshots | see § 8 |
+| F-202 | The radial ring prototype | Floating borderless transparent widget: custom-drawn glass ring, solid core disc, four real buttons on the ring, detail strip, work-area placement with DPI-correct clamping. | ✅ | ✅ 0 warnings | ✅ 76/76 tests green + live size/position/focus/hover checks + 2 screenshots | `ad6d860` |
+| F-203 | Item interaction model | Spatial keyboard navigation (`RingSelection`, pure and unit tested), `Home`/`End`, `Enter`/`Space` activation, `Escape` dismissal that restores the previous foreground window, distinct hover / keyboard-focus / selection-halo states, and a disabled item that explains itself in the strip, the tooltip and to a screen reader. | ✅ | ✅ 0 warnings | ✅ 101/101 tests green + live key-by-key checks, Tab traversal, focus restoration + 4 screenshots | see § 8 |
 
 Nothing else is complete. **No conversion feature exists yet** — no format in the README table is
 currently implemented.
@@ -62,7 +63,7 @@ currently implemented.
 
 ## 4. Features In Progress
 
-**None.** F-203 is the next feature and has not been started.
+**None.** F-203 is complete; F-204 is the next feature and has not been started.
 
 ---
 
@@ -72,8 +73,9 @@ Full detail, dependencies and acceptance criteria: [`docs/ROADMAP.md`](docs/ROAD
 
 ### Phase 1 — Application foundation
 - **F-101** Solution + projects (`FluxConvert.Core`, `FluxConvert.App`, `FluxConvert.Core.Tests`)
-- **F-102** DI container, structured logging, app data directories
-- **F-103** Settings service (JSON, atomic write, defaults)
+- **F-102** DI container, structured logging, app data directories, settings persistence
+- **F-103** External media tool locator and process runner (delivered early; see the note in
+  `docs/ROADMAP.md`)
 - **F-104** Application shell: borderless main window, tray icon, graceful shutdown
 - **F-105** `--diagnostics` command-line mode
 
@@ -120,8 +122,8 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | | |
 | --- | --- |
 | **Most recent build** | `dotnet build FluxConvert.sln -c Debug` → **Build succeeded, 0 Warning(s), 0 Error(s)** (2026-10-22) |
-| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 76, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`, `SingleInstanceCoordinatorTests`, `ConversionActivityTrackerTests`, `DiagnosticsReportTests`, `RadialGeometryTests`) |
-| **Manual verification** | The floating widget was verified against the live process: 435 × 520 physical pixels = 348 × 416 DIP at 125 % scaling; placed at 1172, 384 DIP in the bottom right of the work area; the foreground window is unchanged when it appears, so it never steals focus; hovering the Images badge updates the detail strip. Earlier checks: DPI awareness `PER_MONITOR_DPI_AWARE`, hide-on-close keeps the process alive, a second launch activates the running instance, `--diagnostics` prints a 34-line report. |
+| **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 101, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`, `SingleInstanceCoordinatorTests`, `ConversionActivityTrackerTests`, `DiagnosticsReportTests`, `RadialGeometryTests`, `RingSelectionTests`) |
+| **Manual verification** | F-203 was driven key by key against the live widget through UI Automation: from no focus, `Right` → *Video*, `Down` → *Audio*, `Up` → *Images*; `End` → *Audio* and `Home` → *Images*; `Enter` selected *Images* (strip: *Images · selected*); `Tab` walked Images → Video → Audio → Images, so the disabled *More options* item was skipped; hovering it turned the strip amber with *Settings, queue and history are not available yet.*; `Escape` hid the window and returned the foreground to the exact window that held it before. The widget is still 435 × 520 physical pixels at 1465,480. Earlier checks: DPI awareness `PER_MONITOR_DPI_AWARE`, hide-on-close keeps the process alive, `--diagnostics` prints a 34-line report. |
 | **Known failures / limitations** | FFmpeg, FFprobe and ImageMagick are **not installed** on this machine, so the locator reports them as unavailable and no real conversion has been attempted. Integration tests are designed to skip with a printed reason rather than fail. |
 | **Last verified** | 2026-10-22 |
 
@@ -156,40 +158,46 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `3cd3023` | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Yes** |
 | `3c52013` | `feat: add diagnostics command line mode` | F-105 — `--diagnostics` report, `--help` usage, console handling, 9 new tests | **Yes** |
 | `c2c8ce1` | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Yes** |
-| *(this commit)* | `feat: add the radial ring prototype` | F-202 — floating widget, glass ring, core disc, item badges, work-area placement | **Yes** |
+| `ad6d860` | `feat: add the radial ring prototype` | F-202 — floating widget, glass ring, core disc, item badges, work-area placement | **Yes** |
+| `bd53a95` | `docs: mark the F-202 commit as pushed` | F-202 hash and push state in this table | **Yes** |
+| *(this commit)* | `feat: add radial menu keyboard and selection interaction` | F-203 — `RingSelection`, view-model focus/selection state, key handling, focus restoration, distinct focus and selection visuals, disabled-item explanation | **Yes** |
 
-All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
-authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
-returned `29aff83`. Further pushes need the same explicit authorisation.
+Every commit above is on `origin/main`; each push was verified with
+`git ls-remote origin refs/heads/main`. Further pushes need the user's explicit authorisation.
 
 ---
 
 ## 9. Next Steps
 
-### Next feature: **F-203 — Item interaction model**
+### Next feature: **F-204 — Animation and the format drill-down**
 
-**Goal.** Make the ring a real menu: keyboard navigation around the ring, a clear distinction
-between hovered, focused and selected items, and a way out with Escape.
+**Goal.** Make the widget feel alive and turn a chosen category into a real format ring, without
+ever blocking input or ignoring the *Reduced motion* preference.
 
 **Acceptance criteria**
 
-1. The arrow keys move the focus around the ring in the direction the user expects; `Home` and
-   `End` jump to the first and the last item.
-2. `Enter` or `Space` activates the focused item; `Escape` closes the widget and returns the
-   focus to the previous application.
-3. The hovered item and the keyboard-focused item are visually distinct from each other and from
-   the selected item.
-4. A disabled item cannot be focused or activated and explains why it is unavailable.
-5. The selection logic is a pure function and is unit tested.
+1. The widget fades and scales in over 180 ms and out over 140 ms; items stagger in at 22 ms each
+   with the total capped at 220 ms.
+2. Activating a category transitions the ring to that category's formats over 220 ms. `Escape`
+   steps back to the category ring; `Escape` on the category ring dismisses the widget and restores
+   the previous window (the F-203 behaviour).
+3. A persisted *Reduced motion* setting collapses every duration to 0 ms while every state change
+   still happens. The setting takes effect without a restart.
+4. Animations never block input: a key pressed during a transition is applied to the new ring, and
+   keyboard focus is never left on an element that has been removed.
+5. The ring-state machine (categories → formats → back) and the motion-duration resolver are pure
+   and unit tested.
 
 **Recommended tests**
 
-- Unit: the next/previous item wraps around the ring and skips disabled items.
-- Manual: arrow keys, Enter and Escape in the live widget.
+- Unit: drill-down and back, including disabled formats and the focus target after each step.
+- Unit: every motion duration resolves to zero when reduced motion is on.
+- Manual: the full keyboard path with reduced motion both off and on, plus a screenshot mid-transition.
 
 **Prerequisites**
 
-- F-202 (done).
+- F-203 (done). The format catalogue can start as the static target-format table from the README;
+  the engines attach to it later (F-402, F-601).
 
 ---
 
@@ -197,7 +205,7 @@ between hovered, focused and selected items, and a way out with Escape.
 
 1. `git status` — confirm a clean tree on `main`.
 2. Read this file, then `docs/PROGRESS.md` for the detailed log.
-3. Check `docs/ROADMAP.md` for the status of the next feature (F-203).
+3. Check `docs/ROADMAP.md` for the status of the next feature (F-204).
 4. Inspect `docs/adr/` for the accepted decisions that constrain the implementation.
 
 **Relevant source files today**
@@ -212,6 +220,7 @@ src/FluxConvert.Core/Tools/*                       media tool discovery
 src/FluxConvert.Core/Shell/*                       single instance, activity tracking
 src/FluxConvert.Core/Diagnostics/*                 the diagnostics report
 src/FluxConvert.Core/Layout/RadialGeometry.cs      pure layout maths (unit tested)
+src/FluxConvert.Core/Layout/RingSelection.cs      pure keyboard selection maths (unit tested)
 src/FluxConvert.App/Composition/AppServices.cs     DI composition root
 src/FluxConvert.App/App.xaml(.cs)                  entry point and application shell
 src/FluxConvert.App/Shell/*                        notification-area icon, drawn icon
@@ -219,7 +228,7 @@ src/FluxConvert.App/Diagnostics/*                  command-line modes
 src/FluxConvert.App/Controls/*                     ProgressRing, RadialItem attached property
 src/FluxConvert.App/Converters/*                   hex and resource-key converters
 src/FluxConvert.App/Themes/*                       palette, typography, spacing, icons, controls
-src/FluxConvert.App/Radial/*                       the floating widget
+src/FluxConvert.App/Radial/*                       widget, ring surface, work area, foreground restore
 src/FluxConvert.App/ViewModels/*                   radial menu and item view models
 src/FluxConvert.App/ShellWindow.xaml(.cs)          the design-system preview
 tests/FluxConvert.Core.Tests/                       xUnit suite
@@ -252,14 +261,29 @@ tests/FluxConvert.Core.Tests/                       xUnit suite
 > creates any window. Otherwise the coordinates from user32 are virtualised and the capture is
 > clipped, which looks like a layout bug in the application.
 
-**Continuation checklist for F-203**
+> **Disabled-control gotcha.** A disabled WPF button raises no mouse events, so it cannot tell the
+> detail strip why it is unavailable. Each badge therefore sits inside a hit-testable `Grid` that
+> owns `MouseEnter`/`MouseLeave`; the button itself only owns `Click`.
 
-- [ ] `src/FluxConvert.Core/Layout/RingSelection.cs` — pure next/previous item logic (unit tested)
-- [ ] `RadialMenuViewModel` gains the focused item and the activation command
-- [ ] `RadialWindow` handles the arrow keys, Enter, Space and Escape
-- [ ] Escape hides the widget and returns the focus to the previous application
-- [ ] Distinct hover / focus / selected visuals
-- [ ] Disabled items are skipped and explain why
+> **Foreground gotcha.** `ShowActivated="False"` plus `Activate()` is not enough when the widget is
+> summoned without recent input (for example by a second launch): Windows refuses the foreground
+> change, silently. `ForegroundWindowTracker` captures the window the user came from and uses
+> `AttachThreadInput` as the fallback when raising or restoring it.
+
+> **Topmost gotcha.** `Topmost = true; Topmost = false;` leaves the window *not* topmost. The F-202
+> `ShowShell` did exactly that. The widget is topmost through its XAML and the toggle was removed
+> in F-203.
+
+**Continuation checklist for F-204**
+
+- [ ] `src/FluxConvert.Core/Layout/` — a pure category ↔ format ring state machine (unit tested)
+- [ ] A static format catalogue in Core from the README target table, with per-format availability
+- [ ] `RadialMenuViewModel` can swap the item set and keep focus on a valid item
+- [ ] Open/close fade + scale (180 / 140 ms) and the 220 ms ring transition
+- [ ] Item stagger-in (22 ms each, 220 ms cap)
+- [ ] A persisted *Reduced motion* setting that zeroes every duration
+- [ ] `Escape` steps back one level before dismissing
 - [ ] `dotnet build` → 0 warnings; `dotnet test` → green
-- [ ] Update this file, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/ART_DIRECTION.md`
-- [ ] Commit: `feat: add radial menu keyboard and selection interaction`
+- [ ] Update this file, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/ART_DIRECTION.md`,
+      `docs/TESTING.md`
+- [ ] Commit: `feat: add ring animation and format drill-down`

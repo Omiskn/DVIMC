@@ -77,8 +77,7 @@ public partial class App : Application, IDisposable
 
         if (!settings.Current.StartMinimizedToTray)
         {
-            _radial.Show();
-            _radial.PositionInWorkArea();
+            _radial.ShowWidget(activate: false);
         }
     }
 
@@ -117,28 +116,11 @@ public partial class App : Application, IDisposable
     /// <summary>
     /// Brings the floating interface to the front, creating it if necessary.
     /// </summary>
-    public void ShowShell()
-    {
-        if (_radial is null)
-        {
-            return;
-        }
-
-        if (!_radial.IsVisible)
-        {
-            _radial.Show();
-        }
-
-        if (_radial.WindowState == WindowState.Minimized)
-        {
-            _radial.WindowState = WindowState.Normal;
-        }
-
-        _radial.Activate();
-        _radial.Topmost = true;
-        _radial.Topmost = false;
-        _radial.Focus();
-    }
+    /// <remarks>
+    /// The widget is summoned on purpose, so it takes the focus and remembers the window it came
+    /// from. <c>Escape</c> gives the focus back to that window.
+    /// </remarks>
+    public void ShowShell() => _radial?.ShowWidget(activate: true);
 
     /// <summary>
     /// Opens the design-system preview. This is a development aid that shows every token, style

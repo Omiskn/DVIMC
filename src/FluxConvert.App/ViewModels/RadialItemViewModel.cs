@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluxConvert.Core.Layout;
@@ -45,6 +44,16 @@ public sealed partial class RadialItemViewModel : ObservableObject
     /// <summary>The colour of the glyph at rest.</summary>
     public Brush Accent { get; }
 
+    /// <summary>
+    /// Why the item cannot be used, or <see langword="null"/> when it can.
+    /// </summary>
+    /// <remarks>
+    /// A disabled option that does not say why it is disabled is a dead end. The reason is shown
+    /// in the tooltip, in the detail strip and to a screen reader, so the user is never left
+    /// guessing.
+    /// </remarks>
+    public string? DisabledReason { get; init; }
+
     /// <summary>The distance of the item centre from the centre of the ring.</summary>
     public double Radius { get; private set; }
 
@@ -65,6 +74,15 @@ public sealed partial class RadialItemViewModel : ObservableObject
     private double _top;
 
     /// <summary>
+    /// The text shown when the item is hovered or focused.
+    /// </summary>
+    /// <remarks>
+    /// For an available item this is what it does; for an unavailable item it is why it cannot
+    /// be used. The same text is bound to the tooltip and to the automation help text.
+    /// </remarks>
+    public string HelpText => IsEnabled ? Description : DisabledReason ?? Description;
+
+    /// <summary>
     /// Places the item on the ring.
     /// </summary>
     /// <param name="centreX">The horizontal centre of the ring area.</param>
@@ -81,4 +99,6 @@ public sealed partial class RadialItemViewModel : ObservableObject
         Left = position.X - (size / 2.0);
         Top = position.Y - (size / 2.0);
     }
+
+    partial void OnIsEnabledChanged(bool value) => OnPropertyChanged(nameof(HelpText));
 }

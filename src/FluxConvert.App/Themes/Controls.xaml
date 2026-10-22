@@ -39,9 +39,19 @@
     <!-- ========================== Radial item =========================== -->
 
     <!--
-      The badge that sits on the ring. Four visible states, each distinguishable without
-      relying on colour alone: the hover state also grows the badge, the focused and selected
-      states also thicken the border, and the disabled state also dims it.
+      The badge that sits on the ring. Five visible states, each distinguishable without relying
+      on colour alone:
+
+        rest      flat badge, hairline border, icon at 80 % opacity
+        hover     lighter fill, the badge grows, the icon brightens
+        keyboard  two-pixel Accent.Blue border - the framework focus cue
+        selected  a separate halo ring around the badge plus a glow, so a selection is obvious
+                  even when the keyboard focus is somewhere else
+        disabled  the whole badge dims and the reason is shown in the detail strip
+
+      Focus and selection are deliberately different shapes, not two shades of the same ring:
+      focus hugs the badge with a thick border, selection floats a thin ring four pixels away.
+      That survives both a colour-blind user and a category accent that happens to be blue-ish.
     -->
     <Style x:Key="RadialItemBadge" TargetType="Button">
         <Setter Property="Width" Value="{StaticResource Size.ItemBadge}" />
@@ -56,22 +66,30 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Badge"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{StaticResource Radius.Medium}"
-                            RenderTransformOrigin="0.5,0.5"
-                            SnapsToDevicePixels="True">
-                        <Border.RenderTransform>
+                    <Grid x:Name="BadgeHost" RenderTransformOrigin="0.5,0.5">
+                        <Grid.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" />
-                        </Border.RenderTransform>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
+                        </Grid.RenderTransform>
+                        <Border x:Name="SelectionHalo"
+                                Margin="-4"
+                                BorderBrush="{StaticResource Accent.Blue}"
+                                BorderThickness="1.5"
+                                CornerRadius="{StaticResource Radius.Large}"
+                                Visibility="Collapsed"
+                                IsHitTestVisible="False" />
+                        <Border x:Name="Badge"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{StaticResource Radius.Medium}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Badge" Property="Background" Value="{StaticResource Surface.ItemHover}" />
-                            <Setter TargetName="Badge" Property="RenderTransform">
+                            <Setter TargetName="BadgeHost" Property="RenderTransform">
                                 <Setter.Value>
                                     <ScaleTransform ScaleX="1.06" ScaleY="1.06" />
                                 </Setter.Value>
@@ -86,8 +104,8 @@
                         <Trigger Property="controls:RadialItem.IsSelected" Value="True">
                             <Setter TargetName="Badge" Property="Background" Value="{StaticResource Surface.ItemFocus}" />
                             <Setter TargetName="Badge" Property="BorderBrush" Value="{StaticResource Accent.Blue}" />
-                            <Setter TargetName="Badge" Property="BorderThickness" Value="2" />
                             <Setter TargetName="Badge" Property="Effect" Value="{StaticResource Shadow.Selected}" />
+                            <Setter TargetName="SelectionHalo" Property="Visibility" Value="Visible" />
                             <Setter Property="Foreground" Value="{StaticResource Text.Primary}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">

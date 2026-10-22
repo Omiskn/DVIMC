@@ -475,8 +475,9 @@ square badges evenly spaced on the ring, and the detail strip below.
 **Issues found and fixed during this feature**
 
 - `EventSetter` cannot resolve a directly-routed event such as `MouseEnter` by name, which
-  crashed the application at start-up with a `XamlParseException`. The plain CLR event attributes
-  on the button are used instead.
+  crashed the application at start-up with a `XamlParseException`. Plain CLR event attributes are
+  used instead; since F-203 they live on the hit-testable grid that wraps each badge, because a
+  disabled button raises no mouse events.
 - **The first screenshots were wrong, not the widget.** The capture script was not per-monitor
   DPI aware, so `GetWindowRect` returned virtualised coordinates and `PrintWindow` clipped the
   widget: the ring looked oversized and the detail strip appeared to be missing. The capture
@@ -487,12 +488,107 @@ square badges evenly spaced on the ring, and the detail strip below.
 
 ---
 
+### F-203 · Item interaction model — **Verified**
+
+**Created**
+
+```text
+src/FluxConvert.Core/Layout/RingDirection.cs           up / right / down / left
+src/FluxConvert.Core/Layout/RingSelection.cs           pure spatial selection maths
+src/FluxConvert.App/Radial/ForegroundWindowTracker.cs  capture and restore the previous window
+tests/FluxConvert.Core.Tests/RingSelectionTests.cs     25 tests
+```
+
+**Modified**
+
+```text
+src/FluxConvert.Core/Layout/RadialGeometry.cs           shares DefaultStartAngleDegrees with selection
+src/FluxConvert.App/ViewModels/RadialItemViewModel.cs   DisabledReason, HelpText, IsEnabled notifications
+src/FluxConvert.App/ViewModels/RadialMenuViewModel.cs   focused item, selected item, detail precedence, Activate
+src/FluxConvert.App/Radial/RadialWindow.xaml(.cs)       keys, focus tracking, dismiss, show/summon
+src/FluxConvert.App/Themes/Controls.xaml                keyboard focus and selected halo states
+src/FluxConvert.App/App.xaml.cs                         ShowShell delegates to ShowWidget
+```
+
+**Behaviour**
+
+- **Arrow keys are spatial, not sequential.** Each direction points at the item closest to that
+  edge of the ring: up 270°, right 0°, down 90°, left 180°. That is what a radial menu implies, and
+  with the current four items every one of them is a single key press away. Sequential traversal
+  stays on `Tab` / `Shift+Tab`, which the framework already provides, and `Home` / `End` jump to the
+  first and last available item.
+- `RingSelection` is pure, lives in the core library and never returns a disabled item. Ties go to
+  an item other than the current one first (so a direction always moves when there is somewhere to
+  move), then clockwise. It shares `RadialGeometry.DefaultStartAngleDegrees`, so the selection can
+  never drift from where the badges are drawn.
+- **`Enter` / `Space` activate.** Activation selects the item; the strip then reads
+  *Images · selected* and the badge keeps a visible halo. The selection is the state F-204 will use
+  to open the format ring.
+- **`Escape` dismisses and gives the focus back.** The window that had the foreground when the
+  widget was summoned is captured first (never one of our own windows), then restored with
+  `SetForegroundWindow`. If Windows refuses, `AttachThreadInput` attaches to the foreground thread
+  and retries.
+- **Three states are visibly different.** Hover is a lighter fill plus a 1.06 scale; keyboard focus
+  is a 2 px `Accent.Blue` border hugging the badge; selection is a 1 px blue edge, a glow and a
+  separate 1.5 px halo ring 4 px outside the badge. Focus and selection are different shapes, not
+  two shades of the same ring. A disabled badge keeps its own state and dims to 45 %.
+- **A disabled item explains itself.** *More options* is disabled because the settings window, the
+  queue and the history do not exist yet. `DisabledReason` is shown in amber in the detail strip
+  when the pointer is over the badge, in the tooltip (`ToolTipService.ShowOnDisabled`) and in
+  `AutomationProperties.HelpText`. It is skipped by the arrow keys and by `Tab`, so it cannot be
+  focused or activated.
+
+**Build:** `dotnet build FluxConvert.sln -c Debug` → *Build succeeded, 0 Warning(s), 0 Error(s)*.
+
+**Tests:** `dotnet test FluxConvert.sln -c Debug` → *Failed: 0, Passed: 101, Skipped: 0*.
+
+**Manual verification** (UIA reads the focused element while real key messages are posted):
+
+| Check | Result |
+| --- | --- |
+| Arrow keys from no focus | Right → *Video*, Down → *Audio*, Up → *Images* |
+| `Home` / `End` | End → *Audio*, Home → *Images* |
+| `Enter` | *Images* selected; strip reads *Images · selected* |
+| `Tab` traversal | Images → Video → Audio → Images — the disabled *More options* is skipped |
+| Disabled explanation | hovering it turns the strip amber with *Settings, queue and history are not available yet.* |
+| `Escape` | window hidden; the foreground returned to the exact window that held it before (HWND 1115066) |
+| Geometry | unchanged at 435 × 520 physical pixels, 1465,480 |
+
+Four screenshots were captured and inspected: hover on *Video*, the focus ring on *Video*, the
+selection halo on *Images* next to the focus ring on *Video* (both states in one frame, with the
+detail strip following the focused item), and the amber disabled explanation for *More options*.
+
+**Issues found and fixed during this feature**
+
+- **The F-202 `ShowShell` left the widget not topmost.** It ended with
+  `Topmost = true; Topmost = false;`, which clears the flag instead of raising the window. The
+  toggle is gone; the widget stays topmost through its XAML. This was found while wiring the
+  activation path, not by a test.
+- **A disabled WPF button raises no mouse events**, so the detail strip could not explain why
+  *More options* is unavailable. Each badge now sits in a hit-testable `Grid` that owns
+  `MouseEnter`/`MouseLeave`; the button keeps only `Click`.
+- **Activation can silently fail.** `ShowActivated="False"` plus `Activate()` does nothing when the
+  process has not recently received input (the second-launch path). The foreground lock is now
+  worked around with `AttachThreadInput`, the same helper that restores the focus on `Escape`.
+- **The first selection indicator was wrong.** A dot below the badge looked right on the top item
+  but fell outside the ring on the bottom one. It was replaced with the halo ring, which stays
+  inside the ring band at every position.
+- The detail-strip reason was too long for one line at 11 px (*…arrive i…*). It is now
+  *Settings, queue and history are not available yet.*, which fits whole.
+
+**Decision recorded.** The F-203 brief suggested pure next/previous wrap-around logic. The
+implementation is spatial instead, because a radial menu points at things; wrap-around traversal
+is still available through `Tab`, and no item is more than one arrow press away. The unit tests
+cover the spatial model, disabled skipping and every five-item enabled/disabled pattern.
+
+---
+
 ## Next up
 
-**F-203 · Item interaction model.**
+**F-204 · Animation and the format drill-down.**
 
-- Acceptance criteria: arrow keys move the selection around the ring, Enter activates the focused
-  item, Escape closes the widget, the hovered and focused items are visually distinct, and a
-  disabled item explains why it cannot be used.
-- Recommended tests: manual verification of the keyboard behaviour; the selection logic is a
-  pure function and can be unit tested.
+- Acceptance criteria: open/close fade and scale, the 220 ms category → format transition, the
+  22 ms item stagger, a persisted *Reduced motion* setting that zeroes every duration, and focus
+  that survives the item set being replaced.
+- Recommended tests: unit tests for the ring state machine and the duration resolver; a live check
+  with reduced motion off and on.

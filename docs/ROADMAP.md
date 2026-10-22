@@ -28,8 +28,8 @@ machine has one display at 1920×1080 physical / 1536×864 logical (125 % scalin
 | ID | Feature | Status | Depends on |
 | --- | --- | --- | --- |
 | F-101 | Solution + project skeleton (`FluxConvert.Core`, `FluxConvert.App`, `FluxConvert.Core.Tests`) | **Verified** | F-001 |
-| F-102 | Dependency injection container, structured logging, app data directories | **Verified** | F-101 |
-| F-103 | Settings service (JSON, atomic write, defaults, validation) | Planned | F-102 |
+| F-102 | Dependency injection container, structured logging, app data directories, settings persistence | **Verified** | F-101 |
+| F-103 | External media tool locator and process runner (delivered early — see F-401) | **Verified** | F-102 |
 | F-104 | Application shell: borderless main window, tray icon, graceful shutdown | **Verified** | F-102 |
 | F-105 | `--diagnostics` command line mode (tool discovery report) | **Verified** | F-102 |
 
@@ -44,7 +44,7 @@ launches to a visible shell that can be closed without a taskbar residue.
 | --- | --- | --- | --- |
 | F-201 | Design tokens (palette, typography, spacing), reusable styles, original icon set | **Verified** | F-101 |
 | F-202 | Radial ring prototype: glass ring, solid core, evenly distributed item badges | **Verified** | F-201 |
-| F-203 | Item interaction model: hover, selection, disabled, keyboard navigation, Escape to close | Planned | F-202 |
+| F-203 | Item interaction model: hover, selection, disabled, keyboard navigation, Escape to close | **Verified** | F-202 |
 | F-204 | Open/close animation, category → format drill-down transition, reduced-motion setting | Planned | F-203 |
 | F-205 | Screen-edge positioning and multi-monitor / DPI correctness | Planned | F-202 |
 
@@ -53,7 +53,7 @@ item is focusable, keyboard-navigable, and screen-reader labelled.
 
 ---
 
-## Phase3 — Drag-and-drop workflow
+## Phase 3 — Drag-and-drop workflow
 
 | ID | Feature | Status | Depends on |
 | --- | --- | --- | --- |

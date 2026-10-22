@@ -51,7 +51,11 @@ dotnet run --project src/FluxConvert.App -- --diagnostics
 - [ ] Widget stays fully inside the visible desktop area on a second monitor, and when dragged
       toward a screen edge.
 - [ ] Hover, keyboard focus and selection are visually distinct from each other.
-- [ ] `Tab` / `Shift+Tab` move focus between radial items; arrow keys also move selection.
+- [ ] `Tab` / `Shift+Tab` walk every enabled item and skip disabled ones.
+- [ ] Arrow keys focus the item in that direction; `Home` and `End` jump to the first and the last.
+- [ ] `Enter` / `Space` select the focused item, and the selection halo stays visible afterwards.
+- [ ] A disabled item cannot be focused or activated, and hovering it explains why in the detail
+      strip and in the tooltip.
 - [ ] `Escape` closes the widget and returns focus to the previous application.
 - [ ] Opening and closing the widget does not steal focus from the active application.
 - [ ] With *Reduced motion* enabled, no animation plays but every state still changes.

@@ -125,16 +125,16 @@ The radial widget is a square, transparent, `Window` with `AllowsTransparency="T
 
 | Element | Value |
 | --- | --- |
-| Widget diameter | 320 px at 100 % scaling (DIP) |
+| Ring diameter | 320 px at 100 % scaling (DIP) |
 | Ring outer radius | 150 px |
 | Ring inner radius | 96 px |
 | Ring thickness | 54 px |
 | Core disc radius | 82 px |
-| Item badge size | 40 × 40 px, corner radius 12 px |
+| Item badge size | 44 × 44 px, corner radius 12 px |
 | Item centre radius | 123 px (mid-ring) |
 | Item gap | Evenly distributed by count; minimum arc gap 44 px |
 | Detail strip | 320 × 56 px, 12 px below the ring |
-| Outer padding | 12 px for the drop shadow bleed |
+| Outer padding | 14 px for the drop shadow bleed |
 
 ### 3.4 Motion
 
@@ -153,14 +153,33 @@ hack.
 
 ### 3.5 Interaction states
 
-Every radial item has four visible states, each distinguishable without relying on colour alone:
+Every radial item has five visible states. No pair relies on colour alone:
 
 | State | Treatment |
 | --- | --- |
 | Rest | `Surface.Item` fill, 1 px `Border.Subtle`, icon at 80 % opacity |
-| Hover | `Surface.ItemHover` fill, accent-tinted 1 px border, icon at 100 %, badge scales to 1.06 |
-| Selected / focus | 2 px `Accent.Blue` ring around the badge, keyboard focus visible |
-| Disabled | 40 % opacity, `Text.Muted` label, `›` chevron replaced by a small "unsupported" glyph, tooltip explains why |
+| Hover | `Surface.ItemHover` fill, icon at 100 %, badge scales to 1.06 |
+| Keyboard focus | `Surface.ItemFocus` fill, **2 px `Accent.Blue` border hugging the badge** |
+| Selected | `Surface.ItemFocus` fill, 1 px `Accent.Blue` edge, `Shadow.Selected` glow **and a separate 1.5 px halo ring 4 px outside the badge** |
+| Disabled | 45 % opacity, `Text.Muted`, with the reason in the detail strip, the tooltip and the automation help text |
+
+Focus and selection are different *shapes* on purpose: focus is a thick border on the badge,
+selection is a second ring floating around it. When an item is both at once it reads as a double
+ring, which is the correct signal: "this is where the keyboard is, and this is what is chosen".
+
+### 3.5.1 Keyboard model
+
+| Key | Action |
+| --- | --- |
+| `↑` `→` `↓` `←` | Focus the enabled item closest to that edge of the ring |
+| `Tab` / `Shift+Tab` | Move through every enabled item in ring order |
+| `Home` / `End` | Focus the first / last enabled item |
+| `Enter` / `Space` | Select the focused (or hovered) item |
+| `Escape` | Dismiss the widget and return the focus to the previous window |
+
+The arrow keys are spatial rather than sequential because a radial menu invites pointing: `→`
+means the item on the right, not "the next one". Sequential traversal is still available through
+`Tab`. Disabled items are never candidates, so the keyboard cannot land on something unusable.
 
 ### 3.6 Typography of the interface
 
@@ -179,7 +198,8 @@ actionable without exposing internal paths in the summary line.
 | Original vector icon set (`Themes/Icons.xaml`, 14 glyphs) | **Verified** 2026-10-22 |
 | Reusable styles (`Themes/Controls.xaml`): item badge, core disc, detail strip, card, ghost button | **Verified** 2026-10-22 |
 | `ProgressRing` control (determinate + indeterminate) | **Verified** 2026-10-22 |
-| Interactive states of the radial item badge (rest, focused, selected, disabled, submenu) | **Verified** 2026-10-22 |
+| Interactive states of the radial item badge (rest, hover, focused, selected, disabled; submenu preview) | **Verified** 2026-10-22 |
+| Keyboard navigation, selection and focus restoration (F-203) | **Verified** 2026-10-22 |
 | Static radial ring prototype | **Verified** 2026-10-22 (F-202) |
 | Category → format drill-down transition | Planned (F-204) |
 | Reduced-motion support | Planned (F-204) |

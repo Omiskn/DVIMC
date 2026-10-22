@@ -83,6 +83,11 @@ custom drawing supplies the visual quality that a plain `ItemsControl` cannot.
 The alternative — a single custom-drawn canvas with manual hit-testing — was rejected because it
 would have to re-implement focus, keyboard navigation, and accessibility from scratch.
 
+Which item an arrow key should focus is decided by `RingSelection` in the core library: a pure
+function that maps a direction to the nearest *enabled* item, sharing its start angle with
+`RadialGeometry`. The interaction model is therefore unit tested without a window, and the keys
+cannot drift away from the geometry that placed the buttons.
+
 ### 3.3 The floating window is a borderless, transparent, topmost `Window`
 
 `AllowsTransparency="True"`, `WindowStyle="None"`, `Background="Transparent"`. The window is
@@ -90,6 +95,11 @@ resized to exactly the widget's needs and repositioned inside the virtual screen
 never falls off-screen on a multi-monitor setup. Clicking outside does **not** steal focus from
 other applications (no `Activate()` unless the user explicitly summoned the widget), so the
 floating target never interrupts work.
+
+When the widget *is* summoned it takes the focus on purpose and `ForegroundWindowTracker`
+remembers which window the user came from; `Escape` hides the widget and gives the focus back.
+The capture ignores this application's own windows, so the user is never returned to a hidden
+widget.
 
 ### 3.4 External tools are located, never assumed
 

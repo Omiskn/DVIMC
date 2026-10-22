@@ -11,6 +11,16 @@ namespace FluxConvert.Core.Layout;
 public static class RadialGeometry
 {
     /// <summary>
+    /// The angle of the first item, measured clockwise from the right.
+    /// </summary>
+    /// <remarks>
+    /// The first item sits at the top of the ring. The keyboard selection uses the same constant,
+    /// so the direction an arrow key points at can never drift away from where the items are
+    /// actually drawn.
+    /// </remarks>
+    public const double DefaultStartAngleDegrees = -90.0;
+
+    /// <summary>
     /// A point in device-independent pixels.
     /// </summary>
     /// <param name="X">The horizontal coordinate.</param>
@@ -68,7 +78,7 @@ public static class RadialGeometry
         double radius,
         int index,
         int count,
-        double startAngleDegrees = -90.0)
+        double startAngleDegrees = DefaultStartAngleDegrees)
     {
         if (count <= 0)
         {
