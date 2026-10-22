@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using FluxConvert.Core.Infrastructure;
 using FluxConvert.Core.Settings;
@@ -107,7 +108,7 @@ public static class DiagnosticsReportBuilder
         section.Entries.Add(new DiagnosticsEntry("Quality preset", settings.QualityPreset, DiagnosticsStatus.Info));
         section.Entries.Add(new DiagnosticsEntry(
             "Max concurrent conversions",
-            settings.MaxConcurrentConversions.ToString(),
+            settings.MaxConcurrentConversions.ToString(CultureInfo.InvariantCulture),
             DiagnosticsStatus.Info));
         section.Entries.Add(new DiagnosticsEntry(
             "Strip metadata",

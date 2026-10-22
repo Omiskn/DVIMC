@@ -1,0 +1,90 @@
+<!--
+  Typography scale.
+
+  Source of truth: docs/ART_DIRECTION.md § 3.2. Sizes are in device-independent pixels and follow
+  the type roles documented there.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!--
+      Segoe UI Variable Text ships with Windows 11; Segoe UI is the fallback for Windows 10.
+      WPF resolves the first family that is installed.
+    -->
+    <FontFamily x:Key="Font.Family">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Font.Family.Mono">Cascadia Mono, Consolas</FontFamily>
+
+    <!-- ============================= Sizes ============================== -->
+
+    <sys:Double x:Key="FontSize.Display">28</sys:Double>
+    <sys:Double x:Key="FontSize.Title">15</sys:Double>
+    <sys:Double x:Key="FontSize.Subtitle">13</sys:Double>
+    <sys:Double x:Key="FontSize.Body">12.5</sys:Double>
+    <sys:Double x:Key="FontSize.Label">12</sys:Double>
+    <sys:Double x:Key="FontSize.Caption">11</sys:Double>
+    <sys:Double x:Key="FontSize.Micro">10</sys:Double>
+    <!-- Large percentage figures on the progress ring. -->
+    <sys:Double x:Key="FontSize.Metric">20</sys:Double>
+
+    <!-- ======================= Baseline styles ========================= -->
+
+    <!-- Every text element inherits this. -->
+    <Style x:Key="Type.Base" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource Font.Family}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Body}" />
+        <Setter Property="Foreground" Value="{StaticResource Text.Primary}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- Large product / file name. -->
+    <Style x:Key="Type.Display" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}">
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Display}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- The name in the core disc. -->
+    <Style x:Key="Type.Title" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}">
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Title}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Supporting line under a title. -->
+    <Style x:Key="Type.Subtitle" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}">
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Subtitle}" />
+        <Setter Property="Foreground" Value="{StaticResource Text.Secondary}" />
+    </Style>
+
+    <!-- Ordinary body text. -->
+    <Style x:Key="Type.Body" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}" />
+
+    <!-- A radial item label. -->
+    <Style x:Key="Type.Label" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}">
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Label}" />
+        <Setter Property="FontWeight" Value="Medium" />
+    </Style>
+
+    <!-- Secondary metadata. -->
+    <Style x:Key="Type.Caption" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}">
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Caption}" />
+        <Setter Property="Foreground" Value="{StaticResource Text.Secondary}" />
+    </Style>
+
+    <!-- All-caps section heading. -->
+    <Style x:Key="Type.Overline" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}">
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Micro}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Text.Muted}" />
+    </Style>
+
+    <!-- A percentage or other figure on the progress ring. -->
+    <Style x:Key="Type.Metric" TargetType="TextBlock" BasedOn="{StaticResource Type.Base}">
+        <Setter Property="FontSize" Value="{StaticResource FontSize.Metric}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+</ResourceDictionary>

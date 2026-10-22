@@ -11,30 +11,91 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Surfaces -->
+    <!-- ============================ Surfaces ============================ -->
+
+    <!-- The window / widget backdrop. -->
     <SolidColorBrush x:Key="Surface.Base" Color="#0B0F1A" />
+    <!-- Cards and the core disc. -->
     <SolidColorBrush x:Key="Surface.Elevated" Color="#141A2B" />
+    <!-- The glass ring. Slightly transparent so the desktop bleeds through. -->
     <SolidColorBrush x:Key="Surface.Ring" Color="#1B2236" Opacity="0.88" />
+    <!-- Radial item badge, at rest. -->
     <SolidColorBrush x:Key="Surface.Item" Color="#232C44" />
+    <!-- Radial item badge, hovered. -->
     <SolidColorBrush x:Key="Surface.ItemHover" Color="#2E3A5C" />
+    <!-- Radial item badge, focused (keyboard). -->
+    <SolidColorBrush x:Key="Surface.ItemFocus" Color="#28324F" />
+    <!-- The detail strip below the ring. -->
+    <SolidColorBrush x:Key="Surface.Strip" Color="#121828" />
+    <!-- A subtle fill used behind inset areas. -->
+    <SolidColorBrush x:Key="Surface.Inset" Color="#0E1424" />
 
-    <!-- Lines -->
+    <!-- ============================= Lines ============================== -->
+
+    <!-- 1 px hairline borders. -->
     <SolidColorBrush x:Key="Border.Subtle" Color="#2A3350" />
+    <!-- A slightly brighter border for emphasis. -->
+    <SolidColorBrush x:Key="Border.Strong" Color="#3A466B" />
 
-    <!-- Text -->
+    <!-- ============================== Text ============================== -->
+
+    <!-- Titles, file names. -->
     <SolidColorBrush x:Key="Text.Primary" Color="#E8ECF7" />
+    <!-- Labels, metadata. -->
     <SolidColorBrush x:Key="Text.Secondary" Color="#9AA6C4" />
+    <!-- Disabled content and hints. -->
     <SolidColorBrush x:Key="Text.Muted" Color="#66739A" />
+    <!-- Text on a saturated accent surface. -->
+    <SolidColorBrush x:Key="Text.OnAccent" Color="#0B0F1A" />
 
-    <!-- Category and action accents -->
+    <!-- ============================ Accents ============================= -->
+
+    <!-- Primary action and focus ring. -->
     <SolidColorBrush x:Key="Accent.Blue" Color="#4C8DFF" />
+    <!-- Video category. -->
     <SolidColorBrush x:Key="Accent.Violet" Color="#8B6CF0" />
+    <!-- Audio category. -->
     <SolidColorBrush x:Key="Accent.Teal" Color="#2DD4BF" />
+    <!-- Image category. -->
     <SolidColorBrush x:Key="Accent.Magenta" Color="#F472B6" />
 
-    <!-- State -->
+    <!-- ============================= State ============================== -->
+
+    <!-- Completed jobs. -->
     <SolidColorBrush x:Key="State.Success" Color="#34D399" />
+    <!-- Quality / fidelity warnings. -->
     <SolidColorBrush x:Key="State.Warning" Color="#FBBF24" />
+    <!-- Failed jobs and unsupported input. -->
     <SolidColorBrush x:Key="State.Error" Color="#F87171" />
+    <!-- Work in progress. -->
+    <SolidColorBrush x:Key="State.Running" Color="#4C8DFF" />
+    <!-- Waiting in the queue. -->
+    <SolidColorBrush x:Key="State.Queued" Color="#66739A" />
+
+    <!-- =========================== Gradients ============================ -->
+
+    <!-- The core disc: one subtle vertical lift, nothing more. -->
+    <LinearGradientBrush x:Key="Gradient.CoreDisc" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Offset="0" Color="#1C2439" />
+        <GradientStop Offset="1" Color="#101627" />
+    </LinearGradientBrush>
+
+    <!-- The ring: a barely-there lift from the top-left. -->
+    <LinearGradientBrush x:Key="Gradient.Ring" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0" Color="#202A44" />
+        <GradientStop Offset="1" Color="#161D30" />
+    </LinearGradientBrush>
+
+    <!-- ============================= Shadow ============================= -->
+
+    <!-- One broad, low-opacity drop shadow for the whole widget. -->
+    <DropShadowEffect x:Key="Shadow.Widget" BlurRadius="34" ShadowDepth="6" Direction="270"
+                      Color="#FF000000" Opacity="0.45" />
+    <!-- A tighter shadow for badges and cards. -->
+    <DropShadowEffect x:Key="Shadow.Card" BlurRadius="14" ShadowDepth="3" Direction="270"
+                      Color="#FF000000" Opacity="0.35" />
+    <!-- The accent glow used for the selected state only. -->
+    <DropShadowEffect x:Key="Shadow.Selected" BlurRadius="16" ShadowDepth="0" Direction="270"
+                      Color="#FF4C8DFF" Opacity="0.55" />
 
 </ResourceDictionary>

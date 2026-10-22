@@ -42,7 +42,7 @@ launches to a visible shell that can be closed without a taskbar residue.
 
 | ID | Feature | Status | Depends on |
 | --- | --- | --- | --- |
-| F-201 | Design tokens (palette, typography, spacing, icon geometry) | Planned | F-101 |
+| F-201 | Design tokens (palette, typography, spacing), reusable styles, original icon set | **Verified** | F-101 |
 | F-202 | Radial ring prototype: glass ring, solid core, evenly distributed item badges | Planned | F-201 |
 | F-203 | Item interaction model: hover, selection, disabled, keyboard navigation, Escape to close | Planned | F-202 |
 | F-204 | Open/close animation, category → format drill-down transition, reduced-motion setting | Planned | F-203 |

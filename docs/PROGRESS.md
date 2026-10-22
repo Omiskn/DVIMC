@@ -347,12 +347,81 @@ exited 0, and the running instance was unaffected.
 
 ---
 
+### F-201 · Design tokens, reusable styles and the original icon set — **Verified**
+
+**Created**
+
+```text
+src/FluxConvert.App/Themes/Palette.xaml      colour tokens, gradients, shadow effects
+src/FluxConvert.App/Themes/Typography.xaml   type scale and the Type.* text styles
+src/FluxConvert.App/Themes/Spacing.xaml      spacing, radii, radial geometry, motion durations
+src/FluxConvert.App/Themes/Icons.xaml        14 original vector icons
+src/FluxConvert.App/Themes/Controls.xaml     item badge, core disc, detail strip, card, ghost button
+src/FluxConvert.App/Controls/ProgressRing.cs determinate and indeterminate progress ring
+src/FluxConvert.App/Controls/RadialItem.cs   the IsSelected attached property
+src/FluxConvert.App/Converters/HexToBrushConverter.cs
+src/FluxConvert.App/Converters/ResourceKeyToGeometryConverter.cs
+src/FluxConvert.App/Swatch.cs                preview model
+src/FluxConvert.App/IconEntry.cs             preview model
+```
+
+**Modified**
+
+```text
+src/FluxConvert.App/App.xaml                 merges the five theme dictionaries
+src/FluxConvert.App/ShellWindow.xaml(.cs)    now shows the design-system preview
+Directory.Build.props                         globalization is no longer invariant
+```
+
+**What the tokens contain**
+
+- **Palette** — 11 surfaces, 2 borders, 3 text colours, 4 category accents, 5 state colours, 2
+  gradients and 3 shadow effects. No view contains a hex value.
+- **Typography** — 8 sizes and 8 named text styles (`Type.Display`, `Type.Title`, `Type.Subtitle`,
+  `Type.Body`, `Type.Label`, `Type.Caption`, `Type.Overline`, `Type.Metric`).
+- **Spacing** — a spacing scale, four corner radii, the radial geometry (ring radii, item radius,
+  core disc diameter, detail strip size) and the motion durations from the art direction.
+- **Icons** — 14 glyphs on a shared 24 × 24 grid with a 1.75 unit stroke, round caps and round
+  joins: Image, Video, Audio, Settings, three chevrons, Close, Check, Folder, History, Queue,
+  Retry, Warning, Error and Search. The path data is original artwork; no icon package is used.
+- **Styles** — the radial item badge with its four states, the core disc, the detail strip, a card
+  and a ghost button. The badge is a real `Button`, so focus, keyboard navigation and screen
+  readers come from the framework; the *selected* state uses an attached property because a
+  button has none of its own.
+
+**Build:** `dotnet build FluxConvert.sln -c Debug` → *Build succeeded, 0 Warning(s), 0 Error(s)*.
+
+**Tests:** `dotnet test FluxConvert.sln -c Debug` → *Failed: 0, Passed: 63, Skipped: 0*. No unit
+test is meaningful for XAML resources; the verification is the build plus a screenshot.
+
+**Manual verification.** The running application shows the whole design system. The palette
+renders every token with its name and value, the type scale renders every role, the icon set
+renders all 14 glyphs in badges, the badge states section shows rest, focused, selected,
+disabled and submenu side by side, and the widget section shows the core disc, a determinate
+progress ring at 35 %, an indeterminate ring and the detail strip. Two screenshots were captured
+from the live window and inspected.
+
+**Issues found and fixed during this feature**
+
+- **A start-up crash caused by `InvariantGlobalization`.** The property made WPF unable to resolve
+  the `en-US` culture, so every binding threw `Cannot find non-neutral culture related to
+  'en-us'` the moment the first template was applied and the application died with exit code
+  `-532462766`. Globalization is no longer invariant — a desktop application has to format
+  numbers and dates the way the user's locale expects anyway. `CA1305` then required an explicit
+  `CultureInfo` in the diagnostics report.
+- `FontSize`, `FontWeight` and `x:Double` are not usable as XAML elements in this setup; the
+  theme dictionaries use `sys:Double` and literal font weights instead.
+- A trigger cannot target an element that lives inside a `RenderTransform`. The hover scale is
+  now set by replacing the whole transform.
+
+---
+
 ## Next up
 
-**Phase 2 — F-201: design tokens and reusable styles.**
+**F-202 · The radial ring prototype.**
 
-- Acceptance criteria: the colour tokens are completed, a typography scale and a spacing scale
-  are defined, and reusable control styles (item badge, core disc, detail strip, progress ring)
-  exist as XAML resources with their interaction states.
-- Recommended tests: manual verification of the styles in the running application; a unit test is
-  not meaningful for pure XAML resources.
+- Acceptance criteria: a borderless, transparent, topmost widget draws the glass ring, the core
+  disc and the item badges at the documented radii; the items are real buttons arranged evenly on
+  the ring; the widget stays inside the visible desktop area.
+- Recommended tests: manual verification with a screenshot; the geometry helper is a pure
+  function and can be unit tested.

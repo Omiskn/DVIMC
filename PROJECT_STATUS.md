@@ -25,10 +25,10 @@
 
 | | |
 | --- | --- |
-| **Current phase** | Phase 1 — Application foundation (complete) → Phase 2 — Visual foundation |
-| **Current feature** | F-105 — `--diagnostics` command-line mode (**Verified**) → next: F-201, design tokens and reusable styles |
-| **Overall completion** | ~23 % — Phase 1 complete: buildable WPF app, DI composition root, file logging, persisted settings, safe process runner, media-tool discovery, notification-area shell, single instance, graceful shutdown and a diagnostics command. **No conversion feature exists yet.** |
-| **Most recent verified milestone** | F-105 — `--diagnostics` command-line mode (0 warnings, 63/63 tests green, report verified by running the real command) |
+| **Current phase** | Phase 2 — Visual foundation and the radial interface |
+| **Current feature** | F-201 — Design tokens, reusable styles, original icon set (**Verified**) → next: F-202, the radial ring prototype |
+| **Overall completion** | ~28 % — Phase 1 complete; the full design system is in place and verified in the running application. **No conversion feature exists yet.** |
+| **Most recent verified milestone** | F-201 — Design system (0 warnings, 63/63 tests green, the whole token set / type scale / icon set / control styles screenshotted from the running app) |
 | **Blockers** | None blocking. FFmpeg/FFprobe/ImageMagick are **not installed** on this machine; this is handled by runtime tool discovery (ADR-0002) and by gracefully skipping integration tests. |
 
 ### Environment facts (verified 2026-10-21)
@@ -51,7 +51,8 @@
 | F-102 | Composition root, file logging, settings persistence | DI container (validated at build), `AppPaths` data-root resolution, daily rotating file logger, atomic JSON settings persistence with corrupt-file quarantine. | ✅ | ✅ 0 warnings | ✅ 27/27 xUnit tests green | `c692935` |
 | F-103 | External media tool locator and process runner | `ProcessRunner` (argument-list based, no shell, concurrent output drain, timeout, cancellation, process-tree kill) and `ToolLocator` (settings → bundled → `PATH`, cached version probe, never throws). | ✅ | ✅ 0 warnings | ✅ 43/43 xUnit tests green | `29aff83` |
 | F-104 | Notification-area shell, single instance, graceful shutdown | Tray icon with context menu, no taskbar button, hide-on-close, second-instance activation, quit confirmation while a conversion runs, code-drawn application icon. | ✅ | ✅ 0 warnings | ✅ 54/54 xUnit tests green + 4 live Win32 checks | `3cd3023` |
-| F-105 | `--diagnostics` command-line mode | Plain-text report of the system, paths, media tools and effective settings; `--help` usage text; works while the application is already running. | ✅ | ✅ 0 warnings | ✅ 63/63 xUnit tests green + real command run | see § 8 |
+| F-105 | `--diagnostics` command-line mode | Plain-text report of the system, paths, media tools and effective settings; `--help` usage text; works while the application is already running. | ✅ | ✅ 0 warnings | ✅ 63/63 xUnit tests green + real command run | `3c52013` |
+| F-201 | Design tokens, reusable styles, original icon set | Complete palette / type scale / spacing scale, 14 original vector icons, radial item badge with four states, core disc, detail strip, progress ring. | ✅ | ✅ 0 warnings | ✅ 63/63 tests green + 2 screenshots of the live app | see § 8 |
 
 Nothing else is complete. **No conversion feature exists yet** — no format in the README table is
 currently implemented.
@@ -60,7 +61,7 @@ currently implemented.
 
 ## 4. Features In Progress
 
-**None.** F-201 is the next feature and has not been started.
+**None.** F-202 is the next feature and has not been started.
 
 ---
 
@@ -117,11 +118,11 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 
 | | |
 | --- | --- |
-| **Most recent build** | `dotnet build FluxConvert.sln -c Debug` → **Build succeeded, 0 Warning(s), 0 Error(s)** (2026-10-21) |
+| **Most recent build** | `dotnet build FluxConvert.sln -c Debug` → **Build succeeded, 0 Warning(s), 0 Error(s)** (2026-10-22) |
 | **Tests executed** | `dotnet test FluxConvert.sln -c Debug` → **Passed! Failed: 0, Passed: 63, Skipped: 0** (`ProductInfoTests`, `AppPathsTests`, `FileLoggerProviderTests`, `SettingsServiceTests`, `ProcessRunnerTests`, `ToolLocatorTests`, `SingleInstanceCoordinatorTests`, `ConversionActivityTrackerTests`, `DiagnosticsReportTests`) |
-| **Manual verification** | The running process was inspected with Win32 calls: DPI awareness `PER_MONITOR_DPI_AWARE`; the shell window is visible at startup; `WM_CLOSE` hides it while the process stays alive; a second launch exits immediately and brings the first instance's window back. `FluxConvert.App.exe --diagnostics` produced a 34-line report (exit code 0) and `--help` printed the usage text; both work while an instance is already running. |
+| **Manual verification** | The running process was inspected with Win32 calls: DPI awareness `PER_MONITOR_DPI_AWARE`; the shell window is visible at startup; `WM_CLOSE` hides it while the process stays alive; a second launch exits immediately and brings the first instance's window back. `FluxConvert.App.exe --diagnostics` produced a 34-line report (exit code 0) and `--help` printed the usage text. The design-system preview was screenshotted twice from the live window and every token, style and icon was inspected. |
 | **Known failures / limitations** | FFmpeg, FFprobe and ImageMagick are **not installed** on this machine, so the locator reports them as unavailable and no real conversion has been attempted. Integration tests are designed to skip with a printed reason rather than fail. |
-| **Last verified** | 2026-10-21 |
+| **Last verified** | 2026-10-22 |
 
 ---
 
@@ -152,7 +153,8 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `c692935` | `feat: add composition root, file logging and settings persistence` | F-102 — DI container, `AppPaths`, file logger, atomic JSON settings with quarantine | **Yes** |
 | `29aff83` | `feat: add external media tool locator and process runner` | F-103 — `ProcessRunner`, `ToolLocator`, `ToolSearchContext`, DI registrations, 16 new tests | **Yes** |
 | `3cd3023` | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Yes** |
-| *(this commit)* | `feat: add diagnostics command line mode` | F-105 — `--diagnostics` report, `--help` usage, console handling, 9 new tests | **Yes** |
+| `3c52013` | `feat: add diagnostics command line mode` | F-105 — `--diagnostics` report, `--help` usage, console handling, 9 new tests | **Yes** |
+| *(this commit)* | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Local only** |
 
 All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
 authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
@@ -162,30 +164,31 @@ returned `29aff83`. Further pushes need the same explicit authorisation.
 
 ## 9. Next Steps
 
-### Next feature: **F-201 — Design tokens and reusable styles**
+### Next feature: **F-202 — The radial ring prototype**
 
-**Goal.** Turn the colour tokens into a complete, documented design system so the radial
-interface is built on a consistent foundation instead of ad-hoc values.
+**Goal.** Replace the design preview with the real floating widget: a borderless, transparent,
+topmost window that draws the glass ring, the solid core disc and the item badges at the radii
+documented in `docs/ART_DIRECTION.md`.
 
 **Acceptance criteria**
 
-1. `Themes/Palette.xaml` holds every colour used by the interface, with no hard-coded hex
-   values left in any view.
-2. A typography scale and a spacing scale are defined as resources.
-3. Reusable styles exist for the radial item badge, the core disc, the detail strip and the
-   progress ring, each with its hover, focus, selected and disabled states.
-4. The original icon set is authored as vector `Geometry` resources with consistent geometry.
-5. The styles are exercised by the running application so they can be judged visually.
+1. The widget is a borderless, transparent, always-on-top `Window` sized to the widget plus its
+   shadow bleed.
+2. The ring, the core disc and the item badges are drawn with the theme resources at the
+   documented radii (ring outer 150, inner 96, item radius 123, core disc 164).
+3. The items are real buttons arranged evenly around the ring, keyboard navigable.
+4. The widget is positioned so it always stays fully inside the visible desktop area.
+5. The geometry is a pure, unit-tested helper; the drawing itself is verified by a screenshot.
 
 **Recommended tests**
 
-- Manual: the running application is screenshotted and compared against
-  `docs/ART_DIRECTION.md`.
-- No unit test is meaningful for pure XAML resources; the build is the verification.
+- Unit: the geometry helper returns evenly spaced positions, handles one item and many items, and
+  clamps the widget position to the work area.
+- Manual: the widget is launched, screenshotted and compared with `docs/ART_DIRECTION.md`.
 
 **Prerequisites**
 
-- F-105 (done). Phase 1 is complete.
+- F-201 (done).
 
 ---
 
@@ -193,7 +196,7 @@ interface is built on a consistent foundation instead of ad-hoc values.
 
 1. `git status` — confirm a clean tree on `main`.
 2. Read this file, then `docs/PROGRESS.md` for the detailed log.
-3. Check `docs/ROADMAP.md` for the status of the next feature (F-201).
+3. Check `docs/ROADMAP.md` for the status of the next feature (F-202).
 4. Inspect `docs/adr/` for the accepted decisions that constrain the implementation.
 
 **Relevant source files today**
@@ -211,14 +214,20 @@ src/FluxConvert.App/Composition/AppServices.cs     DI composition root
 src/FluxConvert.App/App.xaml(.cs)                  entry point and application shell
 src/FluxConvert.App/Shell/*                        notification-area icon, drawn icon
 src/FluxConvert.App/Diagnostics/*                  command-line modes
-src/FluxConvert.App/ShellWindow.xaml(.cs)          temporary shell, replaced by the radial widget
-src/FluxConvert.App/Themes/Palette.xaml            colour tokens
+src/FluxConvert.App/Controls/*                     ProgressRing, RadialItem attached property
+src/FluxConvert.App/Converters/*                   hex and resource-key converters
+src/FluxConvert.App/Themes/*                       palette, typography, spacing, icons, controls
+src/FluxConvert.App/ShellWindow.xaml(.cs)          design-system preview, replaced by the widget
 tests/FluxConvert.Core.Tests/                       xUnit suite
 ```
 
 > **WPF gotcha to remember.** The markup compiler only generates `Application.InitializeComponent()`
 > when `App.xaml` has loadable content. `App.xaml` therefore merges `Themes/Palette.xaml`, and that
 > file must never be emptied — otherwise the build fails with `CS0103: InitializeComponent`.
+
+> **Globalization gotcha.** `InvariantGlobalization` must stay off. WPF resolves the culture of
+> every binding, and an invariant runtime has no `en-US` culture, so the interface throws at
+> start-up.
 
 > **Implicit usings gotcha.** WPF projects get a reduced implicit-usings set. `System.IO` is **not**
 > included — add `using System.IO;` explicitly in App-project files that need it. Enabling Windows
@@ -235,15 +244,15 @@ tests/FluxConvert.Core.Tests/                       xUnit suite
 > **Console gotcha.** `AttachConsole` replaces the standard handles. If standard output is already
 > redirected to a file or a pipe, never re-open it — the redirection would be lost.
 
-**Continuation checklist for F-201**
+**Continuation checklist for F-202**
 
-- [ ] Complete `Themes/Palette.xaml` (add the missing surfaces, states and shadows)
-- [ ] `Themes/Typography.xaml` — type scale
-- [ ] `Themes/Spacing.xaml` — spacing scale
-- [ ] `Themes/Controls.xaml` — item badge, core disc, detail strip, progress ring styles
-- [ ] `Themes/Icons.xaml` — original vector icon set as `Geometry` resources
-- [ ] Merge all theme dictionaries in `App.xaml`
-- [ ] Apply the styles to the running shell and screenshot it for comparison
+- [ ] `src/FluxConvert.App/Radial/RadialGeometry.cs` — pure geometry helper (unit tested)
+- [ ] `src/FluxConvert.App/Radial/RingSurface.cs` — the custom-drawn glass ring
+- [ ] `src/FluxConvert.App/Radial/RadialWindow.xaml(.cs)` — the borderless floating widget
+- [ ] `src/FluxConvert.App/Radial/RadialItemModel.cs` — the item the ring shows
+- [ ] `src/FluxConvert.App/Radial/WorkAreaProvider.cs` — keeps the widget on screen
+- [ ] Replace the design preview with the widget in `App.OnStartup`
+- [ ] Screenshot the live widget and compare it with `docs/ART_DIRECTION.md`
 - [ ] `dotnet build` → 0 warnings; `dotnet test` → green
 - [ ] Update this file, `docs/PROGRESS.md`, `docs/ROADMAP.md`, `docs/ART_DIRECTION.md`
-- [ ] Commit: `feat: add design tokens, reusable styles and icon set`
+- [ ] Commit: `feat: add the radial ring prototype`

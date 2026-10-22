@@ -175,11 +175,39 @@ actionable without exposing internal paths in the summary line.
 | Item | Status |
 | --- | --- |
 | Reference inspection and this document | **Verified** 2026-10-21 |
-| Design tokens in XAML | Planned |
-| Static radial ring prototype | Planned |
-| Interactive items with hover / focus / disabled | Planned |
-| Category → format drill-down transition | Planned |
-| Reduced-motion support | Planned |
-| Comparison against the reference after implementation | Planned |
+| Design tokens in XAML (`Themes/Palette.xaml`, `Typography.xaml`, `Spacing.xaml`) | **Verified** 2026-10-22 |
+| Original vector icon set (`Themes/Icons.xaml`, 14 glyphs) | **Verified** 2026-10-22 |
+| Reusable styles (`Themes/Controls.xaml`): item badge, core disc, detail strip, card, ghost button | **Verified** 2026-10-22 |
+| `ProgressRing` control (determinate + indeterminate) | **Verified** 2026-10-22 |
+| Interactive states of the radial item badge (rest, focused, selected, disabled, submenu) | **Verified** 2026-10-22 |
+| Static radial ring prototype | Planned (F-202) |
+| Category → format drill-down transition | Planned (F-204) |
+| Reduced-motion support | Planned (F-204) |
+| Comparison against the reference after the full interface exists | Planned (F-205) |
 
-Update this table as the interface is built; the live version of this document is the record.
+### 4.1 Where the tokens live
+
+| File | Contents |
+| --- | --- |
+| `src/FluxConvert.App/Themes/Palette.xaml` | Every colour, the gradients and the three shadow effects |
+| `src/FluxConvert.App/Themes/Typography.xaml` | The type scale and the `Type.*` text styles |
+| `src/FluxConvert.App/Themes/Spacing.xaml` | Spacing, radii, the radial geometry and the motion durations |
+| `src/FluxConvert.App/Themes/Icons.xaml` | The original icon set as `Geometry` resources |
+| `src/FluxConvert.App/Themes/Controls.xaml` | The reusable control styles |
+
+The dictionaries are merged in `App.xaml` in dependency order: a dictionary may only reference
+resources that were merged before it.
+
+### 4.2 Observations from the first implementation
+
+Building the tokens and styles against the reference surfaced two adjustments:
+
+- **The ring has to be genuinely translucent, but the item badges must not be.** In the reference
+  the ring is frosted glass and the icons sit on it in solid rounded-square badges. The badge
+  therefore uses `Surface.Item` (opaque) rather than the translucent `Surface.Ring`, so the icons
+  stay crisp against whatever is behind the widget.
+- **The chevron needs its own contrast.** On the reference the `›` affordance is a thin mark on
+  light glass. On the dark theme it is drawn in `Text.Secondary` and sits outside the badge, so it
+  does not compete with the icon.
+
+Update this section as the interface is built; the live version of this document is the record.

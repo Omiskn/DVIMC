@@ -8,7 +8,10 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Recommended</AnalysisMode>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Globalization is deliberately NOT invariant: WPF resolves the culture of every binding,
+         and an invariant runtime has no 'en-US' culture to resolve, which makes the interface
+         throw at start-up. A desktop application also has to format numbers and dates the way
+         the user's locale expects. -->
     <Product>FluxConvert</Product>
     <Company>FluxConvert</Company>
     <Authors>FluxConvert</Authors>

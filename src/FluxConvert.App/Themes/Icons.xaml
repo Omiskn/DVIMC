@@ -1,0 +1,61 @@
+<!--
+  The original icon set.
+
+  Every glyph is drawn on the same 24 x 24 grid with a 1.75 unit stroke, round caps and round
+  joins, so the set reads as one family. The path data is original artwork authored for this
+  project; no third-party icon font or package is used.
+
+  Icons are stroke based. A badge supplies the colour through its Foreground, and the icon path
+  picks it up from the surrounding button.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- =========================== Categories =========================== -->
+
+    <!-- A framed picture with a sun and a ridge. -->
+    <Geometry x:Key="Icon.Image">M5,3 L19,3 A2,2 0 0 1 21,5 L21,19 A2,2 0 0 1 19,21 L5,21 A2,2 0 0 1 3,19 L3,5 A2,2 0 0 1 5,3 Z M9.5,8 A1.5,1.5 0 1 1 6.5,8 A1.5,1.5 0 1 1 9.5,8 Z M5,17 L10,11.5 L13.5,15 L16,12.5 L21,17.5</Geometry>
+
+    <!-- A framed screen with a play triangle. -->
+    <Geometry x:Key="Icon.Video">M5,3 L19,3 A2,2 0 0 1 21,5 L21,19 A2,2 0 0 1 19,21 L5,21 A2,2 0 0 1 3,19 L3,5 A2,2 0 0 1 5,3 Z M10,8.5 L16,12 L10,15.5 Z</Geometry>
+
+    <!-- A pair of quavers. -->
+    <Geometry x:Key="Icon.Audio">M10,15 L10,5.5 L19,3.5 L19,14 M11.5,16.5 A3,2.5 0 1 1 5.5,16.5 A3,2.5 0 1 1 11.5,16.5 Z M20.5,14.5 A3,2.5 0 1 1 14.5,14.5 A3,2.5 0 1 1 20.5,14.5 Z</Geometry>
+
+    <!-- Three sliders: the "more options" affordance. -->
+    <Geometry x:Key="Icon.Settings">M4,7 L20,7 M4,12 L20,12 M4,17 L20,17 M11.5,7 A2.5,2.5 0 1 1 6.5,7 A2.5,2.5 0 1 1 11.5,7 Z M17.5,12 A2.5,2.5 0 1 1 12.5,12 A2.5,2.5 0 1 1 17.5,12 Z M10.5,17 A2.5,2.5 0 1 1 5.5,17 A2.5,2.5 0 1 1 10.5,17 Z</Geometry>
+
+    <!-- ============================ Actions ============================ -->
+
+    <!-- The chevron that marks an item that opens a submenu. -->
+    <Geometry x:Key="Icon.ChevronRight">M9,5 L16,12 L9,19</Geometry>
+    <Geometry x:Key="Icon.ChevronLeft">M15,5 L8,12 L15,19</Geometry>
+    <Geometry x:Key="Icon.ChevronDown">M5,9 L12,16 L19,9</Geometry>
+
+    <Geometry x:Key="Icon.Close">M6,6 L18,18 M18,6 L6,18</Geometry>
+    <Geometry x:Key="Icon.Check">M5,13 L10,18 L19,7</Geometry>
+
+    <!-- A folder, for "open containing folder". -->
+    <Geometry x:Key="Icon.Folder">M3,7 L3,19.5 L21,19.5 L21,9.5 L11,9.5 L9,7 Z</Geometry>
+
+    <!-- A clock, for the conversion history. -->
+    <Geometry x:Key="Icon.History">M12,3 A9,9 0 1 1 11.99,3 M12,7 L12,12 L16,14</Geometry>
+
+    <!-- A list, for the conversion queue. -->
+    <Geometry x:Key="Icon.Queue">M9,7 L20,7 M9,12 L20,12 M9,17 L20,17 M6,7 A1.5,1.5 0 1 1 3,7 A1.5,1.5 0 1 1 6,7 Z M6,12 A1.5,1.5 0 1 1 3,12 A1.5,1.5 0 1 1 6,12 Z M6,17 A1.5,1.5 0 1 1 3,17 A1.5,1.5 0 1 1 6,17 Z</Geometry>
+
+    <!-- A circular arrow, for "retry". -->
+    <Geometry x:Key="Icon.Retry">M18.5,7.5 A8,8 0 1 1 12,4 M18.5,3 L18.5,7.5 L14,7.5</Geometry>
+
+    <!-- ============================= States ============================= -->
+
+    <!-- A warning triangle. -->
+    <Geometry x:Key="Icon.Warning">M12,4 L22,20.5 L2,20.5 Z M12,10 L12,15 M12,17.5 L12,18</Geometry>
+
+    <!-- A crossed-out circle. -->
+    <Geometry x:Key="Icon.Error">M12,3 A9,9 0 1 1 11.99,3 M9,9 L15,15 M15,9 L9,15</Geometry>
+
+    <!-- A magnifier, for the history search. -->
+    <Geometry x:Key="Icon.Search">M11,4 A7,7 0 1 1 10.99,4 M16,16 L21,21</Geometry>
+
+</ResourceDictionary>

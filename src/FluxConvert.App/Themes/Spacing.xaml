@@ -1,0 +1,68 @@
+<!--
+  Spacing, radii and sizes.
+
+  Source of truth: docs/ART_DIRECTION.md § 3.3. The radial geometry lives here so that the ring,
+  the core disc and the item badges can never drift apart.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ============================ Spacing ============================= -->
+
+    <Thickness x:Key="Space.XSmall">4</Thickness>
+    <Thickness x:Key="Space.Small">8</Thickness>
+    <Thickness x:Key="Space.Medium">12</Thickness>
+    <Thickness x:Key="Space.Large">16</Thickness>
+    <Thickness x:Key="Space.XLarge">24</Thickness>
+    <Thickness x:Key="Space.XXLarge">32</Thickness>
+
+    <!-- ============================= Radii ============================== -->
+
+    <CornerRadius x:Key="Radius.Small">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Medium">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Large">16</CornerRadius>
+    <CornerRadius x:Key="Radius.Pill">999</CornerRadius>
+
+    <!-- ============================== Sizes ============================= -->
+
+    <!-- Radial item badge. -->
+    <sys:Double x:Key="Size.ItemBadge">44</sys:Double>
+    <!-- Icon glyph inside a badge. -->
+    <sys:Double x:Key="Size.Icon">22</sys:Double>
+    <!-- Small glyph, e.g. the chevron on an item that opens a submenu. -->
+    <sys:Double x:Key="Size.IconSmall">14</sys:Double>
+
+    <!-- The core disc diameter. -->
+    <sys:Double x:Key="Size.CoreDisc">164</sys:Double>
+    <!-- The outer radius of the glass ring. -->
+    <sys:Double x:Key="Size.RingOuterRadius">150</sys:Double>
+    <!-- The inner radius of the glass ring. -->
+    <sys:Double x:Key="Size.RingInnerRadius">96</sys:Double>
+    <!-- The radius at which the item badges sit. -->
+    <sys:Double x:Key="Size.RingItemRadius">123</sys:Double>
+
+    <!-- The width of the detail strip below the ring. -->
+    <sys:Double x:Key="Size.StripWidth">320</sys:Double>
+    <!-- The height of the detail strip. -->
+    <sys:Double x:Key="Size.StripHeight">56</sys:Double>
+    <!-- The gap between the ring and the detail strip. -->
+    <sys:Double x:Key="Size.StripGap">12</sys:Double>
+
+    <!-- The whole widget. -->
+    <sys:Double x:Key="Size.Widget">320</sys:Double>
+    <!-- Padding kept free for the drop shadow. -->
+    <sys:Double x:Key="Size.WidgetPadding">14</sys:Double>
+
+    <!-- The progress ring. -->
+    <sys:Double x:Key="Size.ProgressRing">132</sys:Double>
+    <sys:Double x:Key="Size.ProgressRingThickness">6</sys:Double>
+
+    <!-- ============================= Motion ============================= -->
+
+    <!-- Durations in milliseconds; see docs/ART_DIRECTION.md § 3.4. -->
+    <sys:Double x:Key="Motion.Fast">120</sys:Double>
+    <sys:Double x:Key="Motion.Normal">180</sys:Double>
+    <sys:Double x:Key="Motion.Slow">220</sys:Double>
+
+</ResourceDictionary>
