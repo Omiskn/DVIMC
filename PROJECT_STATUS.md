@@ -156,7 +156,7 @@ Accounts, telemetry, analytics, advertising, cloud conversion, online uploads, g
 | `3cd3023` | `feat: add tray icon, single instance and graceful shutdown` | F-104 — notification-area shell, single-instance coordination, quit confirmation, code-drawn icon | **Yes** |
 | `3c52013` | `feat: add diagnostics command line mode` | F-105 — `--diagnostics` report, `--help` usage, console handling, 9 new tests | **Yes** |
 | `c2c8ce1` | `feat: add design tokens, reusable styles and icon set` | F-201 — palette, typography, spacing, 14 original icons, control styles, progress ring | **Yes** |
-| *(this commit)* | `feat: add the radial ring prototype` | F-202 — floating widget, glass ring, core disc, item badges, work-area placement | **Local only** |
+| *(this commit)* | `feat: add the radial ring prototype` | F-202 — floating widget, glass ring, core disc, item badges, work-area placement | **Yes** |
 
 All four feature commits were pushed to `origin/main` on 2026-10-21 with the user's explicit
 authorisation, and the push was verified with `git ls-remote origin refs/heads/main`, which
